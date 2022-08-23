@@ -8,6 +8,8 @@ import com.apirest.portfolio.model.Experiencia;
 import com.apirest.portfolio.service.IExperienciaService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,15 +36,26 @@ public class ExperienciaController {
     }
     
     @PostMapping("experiencia/crear")
-    public String createExperiencia(@RequestBody Experiencia expe){
-        interExperiencia.saveExperiencia(expe);
-        return "Experiencia agregada correctamente.";
+    public ResponseEntity<Experiencia> createExperiencia(@RequestBody Experiencia expe){
+        try {
+            expe.setLogo("maletin-web.png");
+            System.out.print(expe);
+            interExperiencia.saveExperiencia(expe);
+            return new ResponseEntity<>(expe, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @DeleteMapping("experiencia/borrar/{id}")
-    public String deleteExperiencia(@PathVariable Long id){
-        interExperiencia.deleteExperiencia(id);
-        return "Experiencia borrada correctamente.";
+    public ResponseEntity<Experiencia> deleteExperiencia(@PathVariable Long id){
+        try{
+            Experiencia expe = interExperiencia.findExperiencia(id);
+            interExperiencia.deleteExperiencia(id);
+            return new ResponseEntity<>(expe, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @PutMapping("experiencia/editar/{id}")
