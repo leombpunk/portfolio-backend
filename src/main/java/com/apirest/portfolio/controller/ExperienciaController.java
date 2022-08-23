@@ -59,29 +59,35 @@ public class ExperienciaController {
     }
     
     @PutMapping("experiencia/editar/{id}")
-    public Experiencia editExperiencia(
+    public ResponseEntity<Experiencia> editExperiencia(
             @PathVariable Long id,
             @RequestParam("cargo") String cargo,
             @RequestParam("tarea") String tarea,
             @RequestParam("desde") String desde,
             @RequestParam("hasta") String hasta,
-            @RequestParam("logo") String logo,
+            //@RequestParam("logo") String logo,
             @RequestParam("empresa") String empresa,
             @RequestParam("reftelef") String reftelef,
             @RequestParam("refnombre") String refnombre){
         
-        Experiencia expe = interExperiencia.findExperiencia(id);
+        try {
+            Experiencia expe = interExperiencia.findExperiencia(id);
         
-        expe.setCargo(cargo);
-        expe.setTarea(tarea);
-        expe.setDesde(desde);
-        expe.setHasta(hasta);
-        expe.setLogo(logo);
-        expe.setEmpresa(empresa);
-        expe.setReftelef(reftelef);
-        expe.setRefnombre(refnombre);
+            expe.setCargo(cargo);
+            expe.setTarea(tarea);
+            expe.setDesde(desde);
+            expe.setHasta(hasta);
+            //expe.setLogo(logo);
+            expe.setEmpresa(empresa);
+            expe.setReftelef(reftelef);
+            expe.setRefnombre(refnombre);
+            interExperiencia.saveExperiencia(expe);
+
+            return new ResponseEntity<>(expe, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
         
-        return expe;
     }
     
     @GetMapping("experiencia/buscar/{id}")
