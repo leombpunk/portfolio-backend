@@ -6,6 +6,7 @@ package com.apirest.portfolio.service;
 
 import com.apirest.portfolio.model.Experiencia;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -16,4 +17,10 @@ public interface IExperienciaService {
     public void saveExperiencia(Experiencia expe);
     public void deleteExperiencia(Long id);
     public Experiencia findExperiencia(Long id);
+    
+    //prueba para imagenes
+    public byte[] getImage(Long id); //or name image
+    public void loadImage(MultipartFile img, Long id);
+    public void updateImage(MultipartFile img, Long id);
+    public void deleteImage(String img, Long id);
 }

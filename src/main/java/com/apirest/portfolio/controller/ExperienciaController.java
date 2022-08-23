@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -94,5 +95,29 @@ public class ExperienciaController {
     public Experiencia findExperiencia(@PathVariable Long id){
         Experiencia expe = interExperiencia.findExperiencia(id);
         return expe;
+    }
+    
+    //agregado para testeos
+    @PutMapping ("experiencia/agregarImg/{id}")
+    public String saveImagen(
+            @PathVariable Long id,
+            @RequestParam("img") MultipartFile img){
+        interExperiencia.loadImage(img, id);
+        return "{ \"status\": \"ok\" }";
+    }
+    
+    @DeleteMapping ("experiencia/borrarImg/{id}")
+    public ResponseEntity<Experiencia> deleteImagen(
+            @PathVariable Long id //id de registro experiencia
+        ){
+        
+        try{
+            Experiencia expe = interExperiencia.findExperiencia(id);
+            expe.setLogo("experiencia_foto_default.jpg");
+            interExperiencia.saveExperiencia(expe);
+            return new ResponseEntity<> (expe, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }    
     }
 }

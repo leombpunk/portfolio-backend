@@ -87,7 +87,6 @@ public class PerfilController {
     }
     
     //agregado para testeos
-    //@GetMapping("perfil/agregarImg/{id}")
     @PutMapping ("perfil/agregarImg/{id}")
     public String saveImagen(
             @PathVariable Long id,
