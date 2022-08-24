@@ -8,6 +8,8 @@ import com.apirest.portfolio.model.Educacion;
 import com.apirest.portfolio.service.IEducacionService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,9 +36,14 @@ public class EducacionController {
     }
     
     @PostMapping("educacion/crear")
-    public String createEducacion(@RequestBody Educacion edu){
-        interEducacion.saveEducacion(edu);
-        return "Los datos de educacion se guardaron correctamente.";
+    public ResponseEntity<Educacion> createEducacion(@RequestBody Educacion edu){
+        try {
+            edu.setLogo("educacion_foto_default.jpg");
+            interEducacion.saveEducacion(edu);
+            return new ResponseEntity<>(edu, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @DeleteMapping("educacion/borrar/{id}")

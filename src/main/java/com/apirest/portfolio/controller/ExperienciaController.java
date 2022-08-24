@@ -39,8 +39,8 @@ public class ExperienciaController {
     @PostMapping("experiencia/crear")
     public ResponseEntity<Experiencia> createExperiencia(@RequestBody Experiencia expe){
         try {
-            expe.setLogo("maletin-web.png");
-            System.out.print(expe);
+            expe.setLogo("experiencia_foto_default.jpg");
+            //System.out.print(expe);
             interExperiencia.saveExperiencia(expe);
             return new ResponseEntity<>(expe, HttpStatus.OK);
         } catch (Exception e){
