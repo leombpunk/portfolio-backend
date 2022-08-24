@@ -5,6 +5,7 @@
 package com.apirest.portfolio.controller;
 
 import com.apirest.portfolio.model.Educacion;
+import com.apirest.portfolio.model.Experiencia;
 import com.apirest.portfolio.service.IEducacionService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -82,5 +84,29 @@ public class EducacionController {
     @GetMapping("educacion/buscar/{id}")
     public Educacion findEducacion(@PathVariable Long id){
         return interEducacion.findEducacion(id);
+    }
+    
+    //agregado para testeos
+    @PutMapping ("educacion/agregarImg/{id}")
+    public String saveImagen(
+            @PathVariable Long id,
+            @RequestParam("img") MultipartFile img){
+        interEducacion.loadImage(img, id);
+        return "{ \"status\": \"ok\" }";
+    }
+    
+    @DeleteMapping ("educacion/borrarImg/{id}")
+    public ResponseEntity<Educacion> deleteImagen(
+            @PathVariable Long id //id de registro experiencia
+        ){
+        
+        try{
+            Educacion edu = interEducacion.findEducacion(id);
+            edu.setLogo("educacion_foto_default.jpg");
+            interEducacion.saveEducacion(edu);
+            return new ResponseEntity<> (edu, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }    
     }
 }
