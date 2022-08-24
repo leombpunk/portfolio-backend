@@ -5,7 +5,6 @@
 package com.apirest.portfolio.service;
 
 import com.apirest.portfolio.model.Experiencia;
-import com.apirest.portfolio.model.Perfil;
 import com.apirest.portfolio.repository.ExperienciaRepository;
 import java.io.IOException;
 import java.nio.file.Files;

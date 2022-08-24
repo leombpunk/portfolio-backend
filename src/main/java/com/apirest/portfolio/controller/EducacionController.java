@@ -53,26 +53,30 @@ public class EducacionController {
     }
     
     @PutMapping("educacion/editar/{id}")
-    public Educacion editEducacion(
+    public ResponseEntity<Educacion> editEducacion(
             @PathVariable Long id,
             @RequestParam("institucion") String institucion,
             @RequestParam("titulo") String titulo,
             @RequestParam("locacion") String locacion,
             @RequestParam("habilidades") String habilidades,
-            @RequestParam("logo") String logo,
+            //@RequestParam("logo") String logo,
             @RequestParam("desde") String desde,
             @RequestParam("hasta") String hasta){
         
-        Educacion edu = interEducacion.findEducacion(id);
-        edu.setInstitucion(institucion);
-        edu.setDesde(desde);
-        edu.setHasta(hasta);
-        edu.setLogo(logo);
-        edu.setTitulo(titulo);
-        edu.setHabilidades(habilidades);
-        edu.setLocacion(locacion);
-        
-        return edu;
+        try{
+            Educacion edu = interEducacion.findEducacion(id);
+            edu.setInstitucion(institucion);
+            edu.setDesde(desde);
+            edu.setHasta(hasta);
+            //edu.setLogo(logo);
+            edu.setTitulo(titulo);
+            edu.setHabilidades(habilidades);
+            edu.setLocacion(locacion);
+            interEducacion.saveEducacion(edu);
+            return new ResponseEntity<>(edu, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @GetMapping("educacion/buscar/{id}")
