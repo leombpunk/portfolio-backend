@@ -49,9 +49,14 @@ public class EducacionController {
     }
     
     @DeleteMapping("educacion/borrar/{id}")
-    public String deleteEducacion(@PathVariable Long id){
-        interEducacion.deleteEducacion(id);
-        return "Los datos de educacion se ha borrado correctamente.";
+    public ResponseEntity<Educacion> deleteEducacion(@PathVariable Long id){
+        try {
+            Educacion edu = interEducacion.findEducacion(id);
+            interEducacion.deleteEducacion(id);
+            return new ResponseEntity<>(edu, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @PutMapping("educacion/editar/{id}")
