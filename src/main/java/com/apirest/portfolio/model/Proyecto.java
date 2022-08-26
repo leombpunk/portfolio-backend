@@ -24,8 +24,12 @@ public class Proyecto {
     private Long id;
     @Column(name="nombre")
     private String nombre;
-    @Column(name="fecha")
-    private String fecha;
+    @Column(name="desde")
+    private String desde;
+    @Column(name="hasta")
+    private String hasta;
+    @Column(name="logo")
+    private String logo;
     @Column(name="descripcion")
     private String descripcion;
     @Column(name="enlace")

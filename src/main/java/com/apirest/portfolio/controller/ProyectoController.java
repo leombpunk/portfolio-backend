@@ -8,6 +8,9 @@ import com.apirest.portfolio.model.Proyecto;
 import com.apirest.portfolio.service.IProyectoService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,12 +19,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
  * @author PCcito
  */
 @RestController
+@CrossOrigin(origins="http://localhost:4200")
 public class ProyectoController {
     @Autowired 
     private IProyectoService interProyecto;
@@ -32,39 +37,80 @@ public class ProyectoController {
     }
     
     @PostMapping("proyecto/crear")
-    public String createProyecto(@RequestBody Proyecto pro){
-        interProyecto.saveProyecto(pro);
-        return "Proyecto guardado correctamente.";
+    public ResponseEntity<Proyecto> createProyecto(@RequestBody Proyecto pro){
+        try {
+            pro.setLogo("proyecto_foto_default.jpg");
+            interProyecto.saveProyecto(pro);
+            return new ResponseEntity<>(pro, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        
     }
     
     @DeleteMapping("proyecto/borrar/{id}")
-    public String deleteProyecto(@PathVariable Long id){
-        interProyecto.deleteProyecto(id);
-        return "Proyecto borrado correctamente.";
+    public ResponseEntity<Proyecto> deleteProyecto(@PathVariable Long id){
+        try {
+            Proyecto pro = interProyecto.findProyecto(id);
+            interProyecto.deleteProyecto(id);
+            return new ResponseEntity<>(pro, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @PutMapping("proyecto/editar/{id}")
-    public Proyecto editProyecto(
+    public ResponseEntity<Proyecto> editProyecto(
             @PathVariable Long id,
             @RequestParam("nombre") String nombre,
             @RequestParam("descripcion") String desc,
-            @RequestParam("fecha") String fecha,
+            @RequestParam("desde") String desde,
+            @RequestParam("hasta") String hasta,
             @RequestParam("enlace") String enlace,
             @RequestParam("sitio") String sitio){
         
-        Proyecto pro = interProyecto.findProyecto(id);
-        pro.setNombre(nombre);
-        pro.setDescripcion(desc);
-        pro.setFecha(fecha);
-        pro.setEnlace(enlace);
-        pro.setSitio(sitio);;
-        
-        return pro;
+        try {
+            Proyecto pro = interProyecto.findProyecto(id);
+            pro.setNombre(nombre);
+            pro.setDescripcion(desc);
+            pro.setDesde(desde);
+            pro.setHasta(hasta);
+            pro.setEnlace(enlace);
+            pro.setSitio(sitio);
+            interProyecto.saveProyecto(pro);
+            return new ResponseEntity<>(pro, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @GetMapping("proyecto/buscar/{id}")
     public Proyecto findProyecto(@PathVariable Long id){
         Proyecto pro = interProyecto.findProyecto(id);
         return pro;
+    }
+    
+    //agregado para testeos
+    @PutMapping ("proyecto/agregarImg/{id}")
+    public String saveImagen(
+            @PathVariable Long id,
+            @RequestParam("img") MultipartFile img){
+        interProyecto.loadImage(img, id);
+        return "{ \"status\": \"ok\" }";
+    }
+    
+    @DeleteMapping ("proyecto/borrarImg/{id}")
+    public ResponseEntity<Proyecto> deleteImagen(
+            @PathVariable Long id //id de registro experiencia
+        ){
+        
+        try{
+            Proyecto pro = interProyecto.findProyecto(id);
+            pro.setLogo("proyecto_foto_default.jpg");
+            interProyecto.saveProyecto(pro);
+            return new ResponseEntity<> (pro, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }    
     }
 }

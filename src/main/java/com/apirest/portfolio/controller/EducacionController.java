@@ -5,7 +5,6 @@
 package com.apirest.portfolio.controller;
 
 import com.apirest.portfolio.model.Educacion;
-import com.apirest.portfolio.model.Experiencia;
 import com.apirest.portfolio.service.IEducacionService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
