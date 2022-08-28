@@ -23,13 +23,11 @@ public class Habilidad {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name="descripcion")
-    private String desc;
+    private String descripcion;
     @Column(name="nivel")
     private int nivel;
     @Column(name="usuarios_id")
     private Long usuarios_id;
-    @Column(name="seniority_id")
-    private Long seniority_id;
     @Column(name="tipo_habilidad_id")
     private Long tipo_habilidad_id;
 }

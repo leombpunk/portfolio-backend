@@ -16,6 +16,7 @@ public interface IHabilidadService {
     public void saveHabilidad(Habilidad hab);
     public void deleteHabilidad(Long id);
     public Habilidad findHabilidad(Long id);
+    
     //interfaz con @Query personalizada -- funciona bien
     public List<Habilidad> getHabilidadesByUserId(Long id);
 }

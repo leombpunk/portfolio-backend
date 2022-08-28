@@ -32,8 +32,18 @@ public class ProyectoController {
     private IProyectoService interProyecto;
     
     @GetMapping("proyecto/traer")
-    public List<Proyecto> getProyectos(){
-        return interProyecto.getProyectos();
+    public ResponseEntity<List<Proyecto>> getProyectos(){
+        try {
+            List<Proyecto> pro = interProyecto.getProyectos();
+            if (pro.isEmpty()){
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            else {
+                return new ResponseEntity<>(pro, HttpStatus.OK);
+            }
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @PostMapping("proyecto/crear")
@@ -45,7 +55,6 @@ public class ProyectoController {
         } catch (Exception e){
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
     }
     
     @DeleteMapping("proyecto/borrar/{id}")

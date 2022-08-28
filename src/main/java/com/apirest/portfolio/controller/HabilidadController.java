@@ -8,6 +8,9 @@ import com.apirest.portfolio.model.Habilidad;
 import com.apirest.portfolio.service.IHabilidadService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,41 +25,63 @@ import org.springframework.web.bind.annotation.RestController;
  * @author PCcito
  */
 @RestController
+@CrossOrigin(origins="http://localhost:4200")
 public class HabilidadController {
     @Autowired
     private IHabilidadService interHabilidad;
     
     @GetMapping("habilidad/traer")
-    public List<Habilidad> getHabilidades(){
-        return interHabilidad.getHabilidades();
+    public ResponseEntity<List<Habilidad>> getHabilidades(){
+        try {
+            List<Habilidad> hab = interHabilidad.getHabilidades();
+            if (hab.isEmpty()){
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            else {
+                return new ResponseEntity<>(hab, HttpStatus.OK);
+            }
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @PostMapping("habilidad/crear")
-    public String createHabilidad(@RequestBody Habilidad hab){
-        interHabilidad.saveHabilidad(hab);
-        return "Habilidad agregada correctamente.";
+    public ResponseEntity<Habilidad> createHabilidad(@RequestBody Habilidad hab){
+        try {
+            interHabilidad.saveHabilidad(hab);
+            return new ResponseEntity<>(hab, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     @DeleteMapping("habilidad/borrar/{id}")
-    public String deleteHabilidad(@PathVariable Long id){
-        interHabilidad.deleteHabilidad(id);
-        return "Habilidad borrada correctamente.";
+    public ResponseEntity<Habilidad> deleteHabilidad(@PathVariable Long id){
+        try {
+            Habilidad hab = interHabilidad.findHabilidad(id);
+            interHabilidad.deleteHabilidad(id);
+            return new ResponseEntity<>(hab, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }  
     }
     
     @PutMapping("habilidad/editar/{id}")
-    public Habilidad editHabilidad(
+    public ResponseEntity<Habilidad> editHabilidad(
             @PathVariable Long id,
-            @RequestParam("descripcion") String desc,
+            @RequestParam("descripcion") String descripcion,
             @RequestParam("nivel") int nivel,
-            @RequestParam("seniority") Long seniority,
-            @RequestParam("habilidadTipo") Long habilidadTipo){
-        Habilidad hab = interHabilidad.findHabilidad(id);
-        hab.setDesc(desc);
-        hab.setNivel(nivel);
-        hab.setSeniority_id(seniority);
-        hab.setTipo_habilidad_id(habilidadTipo);
-        
-        return hab;
+            @RequestParam("tipo_habilidad_id") Long tipo_habilidad_id){
+        try {
+            Habilidad hab = interHabilidad.findHabilidad(id);
+            hab.setDescripcion(descripcion);
+            hab.setNivel(nivel);
+            hab.setTipo_habilidad_id(tipo_habilidad_id);
+            interHabilidad.saveHabilidad(hab);
+            return new ResponseEntity<>(hab, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     //hecho por mi y ya esta funcionando
