@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,8 +25,14 @@ public class Usuario {
     @Column(name="id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @NotBlank
+    @Size(max=16)
     @Column(name="usuario")
     private String usuario;
+    
+    @NotBlank
+    @Size(min=8, max=16)
     @Column(name="contrasena")
     private String contrasena;
 }
