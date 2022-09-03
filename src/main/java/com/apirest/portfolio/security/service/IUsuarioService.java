@@ -2,9 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Interface.java to edit this template
  */
-package com.apirest.portfolio.service;
+package com.apirest.portfolio.security.service;
 
-import com.apirest.portfolio.model.Usuario;
+import com.apirest.portfolio.security.model.Usuario;
 import java.util.List;
 
 /**

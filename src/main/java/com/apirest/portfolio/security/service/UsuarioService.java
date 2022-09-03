@@ -2,10 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.apirest.portfolio.service;
+package com.apirest.portfolio.security.service;
 
-import com.apirest.portfolio.model.Usuario;
-import com.apirest.portfolio.repository.UsuarioRepository;
+import com.apirest.portfolio.security.model.Usuario;
+import com.apirest.portfolio.security.repository.UsuarioRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -2,10 +2,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.apirest.portfolio.controller;
+package com.apirest.portfolio.security.controller;
 
-import com.apirest.portfolio.model.Usuario;
-import com.apirest.portfolio.service.IUsuarioService;
+import com.apirest.portfolio.security.model.Usuario;
+import com.apirest.portfolio.security.service.IUsuarioService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author PCcito
  */
+
+/*NO USAR*/
 @RestController
 public class UsuarioController {
     @Autowired 
