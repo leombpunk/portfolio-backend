@@ -5,6 +5,7 @@
 package com.apirest.portfolio.security.model;
 
 import com.apirest.portfolio.security.enums.RolNombre;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -20,11 +21,13 @@ import javax.validation.constraints.NotNull;
 @Entity(name="roles")
 public class Rol {
     @Id
+    @Column(name="id")
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
     
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(name="nombre")
     private RolNombre rolNombre;
 
     public Rol() {

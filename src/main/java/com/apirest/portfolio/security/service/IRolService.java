@@ -14,4 +14,5 @@ import java.util.Optional;
  */
 public interface IRolService  {
     public Optional<Rol> getByRolNombre(RolNombre rolNombre);
+    public void saveRol(Rol rol);
 }

@@ -15,7 +15,7 @@ public class LoginUsuario {
     private String usuario;
     
     @NotBlank
-    private String constrasena;
+    private String contrasena;
 
     public String getUsuario() {
         return usuario;
@@ -25,11 +25,11 @@ public class LoginUsuario {
         this.usuario = usuario;
     }
 
-    public String getConstrasena() {
-        return constrasena;
+    public String getContrasena() {
+        return contrasena;
     }
 
-    public void setConstrasena(String constrasena) {
-        this.constrasena = constrasena;
+    public void setContrasena(String constrasena) {
+        this.contrasena = constrasena;
     }
 }

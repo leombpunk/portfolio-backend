@@ -26,6 +26,11 @@ public class RolService implements IRolService {
     public Optional<Rol> getByRolNombre(RolNombre rolNombre) {
         return rolRepository.findByRolNombre(rolNombre);
     }
+
+    @Override
+    public void saveRol(Rol rol) {
+        rolRepository.save(rol);
+    }
     
     
 }

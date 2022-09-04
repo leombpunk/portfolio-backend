@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -43,11 +44,11 @@ public class Usuario {
     
     //este campo es opcional
     @NotNull
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     //hago un join a la tabla usuarios_roles
     @JoinTable(name="usuarios_roles", 
             joinColumns=@JoinColumn(name="usuarios_id"), 
-            inverseJoinColumns=@JoinColumn(name="id"))
+            inverseJoinColumns=@JoinColumn(name="roles_id"))
     private Set<Rol> roles = new HashSet<>();
 
     public Usuario() {

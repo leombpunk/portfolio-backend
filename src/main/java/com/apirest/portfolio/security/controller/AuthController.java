@@ -83,7 +83,7 @@ public class AuthController {
         }
         Authentication authentication = 
                 authenticacionManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(loginUsuario.getUsuario(), loginUsuario.getConstrasena()));
+                        new UsernamePasswordAuthenticationToken(loginUsuario.getUsuario(), loginUsuario.getContrasena()));
         SecurityContextHolder.getContext().setAuthentication(authentication); //autenticamos al usuario
         //puesta en marcha del tokenfilter
         String jwt = jwtProvider.generateToken(authentication); //json web token a devolver, a partir de la autenticacion se genera el token

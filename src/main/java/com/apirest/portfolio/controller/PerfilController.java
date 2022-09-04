@@ -13,6 +13,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +52,7 @@ public class PerfilController {
         return "El perfil ha sido borrado correctamente.";
     }
     
+    //@PreAuthorize("hasRole('ADMIN')") // para que el administrador sea el que pueda editar el resto de roles no
     @PutMapping ("perfil/editar/{id}")
     public ResponseEntity<Perfil> editPerfil (
             @PathVariable Long id,
