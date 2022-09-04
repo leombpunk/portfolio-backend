@@ -6,6 +6,7 @@ package com.apirest.portfolio.security.service;
 
 import com.apirest.portfolio.security.model.Usuario;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -16,4 +17,8 @@ public interface IUsuarioService {
     public void saveUsuario(Usuario usu);
     public void deleteUsuario(Long id);
     public Usuario findUsuario(Long id);
+    
+    //agregados
+    public Optional<Usuario> getByUsuario(String usuario);
+    public boolean existsByUsuario(String usuario);
 }

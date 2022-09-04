@@ -7,14 +7,17 @@ package com.apirest.portfolio.security.service;
 import com.apirest.portfolio.security.model.Usuario;
 import com.apirest.portfolio.security.repository.UsuarioRepository;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author PCcito
  */
 @Service
+@Transactional
 public class UsuarioService implements IUsuarioService {
     @Autowired
     private UsuarioRepository usuRepository;
@@ -39,5 +42,16 @@ public class UsuarioService implements IUsuarioService {
     public Usuario findUsuario(Long id) {
         Usuario usu = usuRepository.findById(id).orElse(null);
         return usu;
+    }
+
+    //nuevos metodos
+    @Override
+    public Optional<Usuario> getByUsuario(String usuario) {
+        return usuRepository.findByUsuario(usuario);
+    }
+
+    @Override
+    public boolean existsByUsuario(String usuario) {
+        return usuRepository.existsByUsuario(usuario);
     }
 }

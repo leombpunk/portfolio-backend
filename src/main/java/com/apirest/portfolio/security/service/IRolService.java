@@ -4,10 +4,14 @@
  */
 package com.apirest.portfolio.security.service;
 
+import com.apirest.portfolio.security.enums.RolNombre;
+import com.apirest.portfolio.security.model.Rol;
+import java.util.Optional;
+
 /**
  *
  * @author PCcito
  */
-public interface IRolService {
-    
+public interface IRolService  {
+    public Optional<Rol> getByRolNombre(RolNombre rolNombre);
 }

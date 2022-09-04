@@ -4,12 +4,18 @@
  */
 package com.apirest.portfolio.security.model;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +24,7 @@ import lombok.Setter;
  *
  * @author PCcito
  */
-@Getter @Setter
+//@Getter @Setter
 @Entity(name="usuarios")
 public class Usuario {
     @Id
@@ -28,12 +34,60 @@ public class Usuario {
     
     @NotBlank
     @Size(max=16)
-    @Column(name="usuario")
+    @Column(name="usuario", unique=true)
     private String usuario;
     
     @NotBlank
-    @Size(min=8, max=16)
     @Column(name="contrasena")
     private String contrasena;
+    
+    //este campo es opcional
+    @NotNull
+    @ManyToMany
+    //hago un join a la tabla usuarios_roles
+    @JoinTable(name="usuarios_roles", 
+            joinColumns=@JoinColumn(name="usuarios_id"), 
+            inverseJoinColumns=@JoinColumn(name="id"))
+    private Set<Rol> roles = new HashSet<>();
+
+    public Usuario() {
+    }
+
+    public Usuario(String usuario, String contrasena) {
+        this.usuario = usuario;
+        this.contrasena = contrasena;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
+
+    public String getContrasena() {
+        return contrasena;
+    }
+
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
+    }
+
+    public Set<Rol> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Rol> roles) {
+        this.roles = roles;
+    }
 }
 

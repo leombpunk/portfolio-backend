@@ -8,6 +8,6 @@ package com.apirest.portfolio.security.enums;
  *
  * @author PCcito
  */
-public class ERoles {
-    
+public enum RolNombre {
+    ROLE_ADMIN, ROLE_USER
 }
