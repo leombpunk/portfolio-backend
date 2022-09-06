@@ -10,6 +10,7 @@ import com.apirest.portfolio.security.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -54,6 +55,7 @@ public class MainSecurity extends WebSecurityConfigurerAdapter {
                 .csrf().disable() //si se usan cookies no es buena idea desabilitar csrf
                 .authorizeRequests()
                 .antMatchers("/auth/**").permitAll() //a este recurso se le permite el acceso a cualquiera
+                .antMatchers(HttpMethod.GET).permitAll()//permito todas las peticiones get, usar con cuidado(verificar que no se expongan datos sensibles como contraseñas, etc)
                 .anyRequest().authenticated() //para el resto de recursos hay que estar autenticado
                 .and()
                 .exceptionHandling().authenticationEntryPoint(jwtEntryPoint) //lanza la exception
