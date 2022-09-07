@@ -5,7 +5,10 @@
 package com.apirest.portfolio.repository;
 
 import com.apirest.portfolio.model.Educacion;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -14,5 +17,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface EducacionRepository extends JpaRepository<Educacion, Long> {
-    
+    @Query("SELECT e FROM educacion e INNER JOIN usuarios u ON e.usuarios_id = u.id AND u.usuario = :usuario")
+    List<Educacion> listaEducacionByUsuario(@Param("usuario") String usuario);
 }

@@ -113,4 +113,14 @@ public class EducacionController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }    
     }
+    
+    @GetMapping("educacion/buscarByUsuario/{usuario}")
+    public ResponseEntity<List<Educacion>> buscarByUsuario(@PathVariable("usuario") String usuario){
+        try{
+            List<Educacion> listaEducacion = interEducacion.getEducacionByUsuario(usuario);
+            return new ResponseEntity<List<Educacion>>(listaEducacion, HttpStatus.OK);
+        }catch(Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

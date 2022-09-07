@@ -46,5 +46,11 @@ public class HabilidadService implements IHabilidadService {
         List<Habilidad> listaByUserId = habRepository.listaHabilidadesByUserId(id);
         return listaByUserId;
     }
+
+    @Override
+    public List<Habilidad> getHabilidadesByUsuario(String usuario) {
+        List<Habilidad> listaByUsuario = habRepository.listaHabilidadesByUsuario(usuario);
+        return listaByUsuario;
+    }
     
 }

@@ -108,7 +108,7 @@ public class ExperienciaController {
     
     @DeleteMapping ("experiencia/borrarImg/{id}")
     public ResponseEntity<Experiencia> deleteImagen(
-            @PathVariable Long id //id de registro experiencia
+            @PathVariable("id") Long id //id de registro experiencia
         ){
         
         try{
@@ -119,5 +119,15 @@ public class ExperienciaController {
         } catch (Exception e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }    
+    }
+    
+    @GetMapping("experiencia/buscarByUsuario/{usuario}")
+    public ResponseEntity<List<Experiencia>> bucarByUsuario(@PathVariable("usuario") String usuario){
+        try {
+            List<Experiencia> listaExperiencia = interExperiencia.getExperienciaByUsuario(usuario);
+            return new ResponseEntity<List<Experiencia>>(listaExperiencia, HttpStatus.OK);
+        } catch(Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

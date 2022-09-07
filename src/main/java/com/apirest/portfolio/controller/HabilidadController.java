@@ -90,4 +90,14 @@ public class HabilidadController {
         List<Habilidad> lista = interHabilidad.getHabilidadesByUserId(id);
         return lista;
     }
+    
+    @GetMapping("habilidad/buscarByUsuario/{usuario}")
+    public ResponseEntity<List<Habilidad>> bucarByUsuario(@PathVariable("usuario") String usuario){
+        try{
+            List<Habilidad> listaHabilidad = interHabilidad.getHabilidadesByUsuario(usuario);
+            return new ResponseEntity<List<Habilidad>>(listaHabilidad, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

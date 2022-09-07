@@ -4,6 +4,7 @@
  */
 package com.apirest.portfolio.security.controller;
 
+import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.security.dto.JwtDto;
 import com.apirest.portfolio.security.dto.LoginUsuario;
 import com.apirest.portfolio.security.dto.NuevoUsuario;
@@ -14,6 +15,7 @@ import com.apirest.portfolio.security.model.Usuario;
 import com.apirest.portfolio.security.service.RolService;
 import com.apirest.portfolio.security.service.UsuarioService;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,7 +68,7 @@ public class AuthController {
         if (usuarioService.existsByUsuario(nuevoUsuario.getUsuario())){
             return new ResponseEntity("El nombre de usuario ya existe.", HttpStatus.BAD_REQUEST);
         }
-        Usuario usu = new Usuario(nuevoUsuario.getUsuario(), passwordEncoder.encode(nuevoUsuario.getConstrasena()));
+        Usuario usu = new Usuario(nuevoUsuario.getUsuario(), passwordEncoder.encode(nuevoUsuario.getContrasena()));
         Set<Rol> roles = new HashSet<>();
         roles.add(rolService.getByRolNombre(RolNombre.ROLE_USER).get());
         if (nuevoUsuario.getRoles().contains("admin")){
@@ -72,7 +76,7 @@ public class AuthController {
         }
         usu.setRoles(roles);
         usuarioService.saveUsuario(usu);
-        return new ResponseEntity("Usuario guardado.",HttpStatus.CREATED);
+        return new ResponseEntity(new Mensaje("Usuario guardado."), HttpStatus.CREATED);
     }
     
     
@@ -92,4 +96,22 @@ public class AuthController {
   
         return new ResponseEntity(jwtDto, HttpStatus.OK);
     } 
+    
+    //nuevo metodo agregado
+    @GetMapping("/buscarUsuario/{usuario}")
+    public ResponseEntity<String> buscarUsuario(@PathVariable("usuario") String usuario){
+        try{
+            if (usuario.isBlank() || usuario.isEmpty()){
+                return new ResponseEntity(new Mensaje("El nombre de usuario esta vacio."), HttpStatus.NO_CONTENT);
+            } 
+            if (!usuarioService.existsByUsuario(usuario)){
+                return new ResponseEntity(new Mensaje("El usuario: '" + usuario + "' no existe."), HttpStatus.NOT_FOUND);
+            }
+            Optional<Usuario> usu = usuarioService.getByUsuario(usuario);
+            //usu.get().getUsuario();
+            return new ResponseEntity<>("{ \"usuario\": \""+usu.get().getUsuario()+"\" }", HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
 }

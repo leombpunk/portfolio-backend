@@ -103,5 +103,11 @@ public class EducacionService implements IEducacionService {
     public void deleteImage(String img, Long id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+
+    @Override
+    public List<Educacion> getEducacionByUsuario(String usuario) {
+        List<Educacion> listaEducacion = eduRepository.listaEducacionByUsuario(usuario);
+        return listaEducacion;
+    }
     
 }

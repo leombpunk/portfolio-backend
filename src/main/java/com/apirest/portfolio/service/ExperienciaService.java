@@ -103,5 +103,11 @@ public class ExperienciaService implements IExperienciaService {
     public void deleteImage(String img, Long id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+
+    @Override
+    public List<Experiencia> getExperienciaByUsuario(String usuario) {
+        List<Experiencia> listaExperiencia = expeRepository.listaExperienciaByUsuario(usuario);
+        return listaExperiencia;
+    }
     
 }

@@ -103,5 +103,12 @@ public class ProyectoService implements IProyectoService {
     public void deleteImage(String img, Long id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+
+    //metodo nuevo para la query personalizada
+    @Override
+    public List<Proyecto> getProyectosByUsuario(String usuario) {
+        List<Proyecto> listaProyecto = proyectoRepository.listaProyectosByUsuario(usuario);
+        return listaProyecto;
+    }
     
 }

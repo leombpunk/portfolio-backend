@@ -23,4 +23,8 @@ public interface IEducacionService {
     public void loadImage(MultipartFile img, Long id);
     public void updateImage(MultipartFile img, Long id);
     public void deleteImage(String img, Long id);
+    
+    //nuevo metodo
+    //interfaz para @Query personalizada
+    public List<Educacion> getEducacionByUsuario(String usuario);
 }

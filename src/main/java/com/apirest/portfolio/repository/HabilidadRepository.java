@@ -19,4 +19,8 @@ import org.springframework.stereotype.Repository;
 public interface HabilidadRepository extends JpaRepository<Habilidad, Long> {
     @Query("select h from habilidades h where h.usuarios_id = :usuarios_id")
     List<Habilidad> listaHabilidadesByUserId(@Param("usuarios_id") Long usuarios_id);
+    
+    //nuevo 
+    @Query("SELECT h FROM habilidades h INNER JOIN usuarios u ON h.usuarios_id = u.id AND u.usuario = :usuario")
+    List<Habilidad> listaHabilidadesByUsuario(@Param("usuario") String usuario);
 }

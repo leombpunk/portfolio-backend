@@ -106,5 +106,11 @@ public class PerfilService implements IPerfilService {
     public byte[] getImage(Long id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+
+    @Override
+    public Perfil buscarPerilByUsuario(String usuario) {
+        Perfil perfil = perfRepository.perfilByUsuario(usuario);
+        return perfil;
+    }
     
 }

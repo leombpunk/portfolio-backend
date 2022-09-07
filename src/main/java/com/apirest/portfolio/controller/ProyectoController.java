@@ -122,4 +122,15 @@ public class ProyectoController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }    
     }
+    
+    //metodo para traer solo lo referente al usuario solicitado
+    @GetMapping("proyecto/buscarByUsuario/{usuario}")
+    public ResponseEntity<List<Proyecto>> findProyectoByUsuario(@PathVariable("usuario") String usuario){
+        try {
+            List<Proyecto> listaProyecto = interProyecto.getProyectosByUsuario(usuario);
+            return new ResponseEntity<List<Proyecto>>(listaProyecto, HttpStatus.OK);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

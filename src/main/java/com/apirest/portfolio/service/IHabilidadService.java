@@ -19,4 +19,5 @@ public interface IHabilidadService {
     
     //interfaz con @Query personalizada -- funciona bien
     public List<Habilidad> getHabilidadesByUserId(Long id);
+    public List<Habilidad> getHabilidadesByUsuario(String usuario);
 }

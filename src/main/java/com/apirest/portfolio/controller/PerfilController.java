@@ -6,10 +6,7 @@ package com.apirest.portfolio.controller;
 
 import com.apirest.portfolio.model.Perfil;
 import com.apirest.portfolio.service.IPerfilService;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,15 +44,15 @@ public class PerfilController {
     }
     
     @DeleteMapping ("perfil/borrar/{id}")
-    public String deletePerfil (@PathVariable Long id){
+    public String deletePerfil (@PathVariable("id") Long id){
         interPerfil.deletePerfil(id);
         return "El perfil ha sido borrado correctamente.";
     }
     
-    //@PreAuthorize("hasRole('ADMIN')") // para que el administrador sea el que pueda editar el resto de roles no
+    @PreAuthorize("hasRole('USER')") // para que el administrador sea el que pueda editar el resto de roles no
     @PutMapping ("perfil/editar/{id}")
     public ResponseEntity<Perfil> editPerfil (
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam("nombre") String nombre,
             @RequestParam("apellido") String apellido,
             @RequestParam("titulo") String titulo,
@@ -83,7 +80,7 @@ public class PerfilController {
     }
     
     @GetMapping ("perfil/buscar/{id}")
-    public Perfil findPerfil(@PathVariable Long id){
+    public Perfil findPerfil(@PathVariable("id") Long id){
         Perfil perf = interPerfil.findPerfil(id);
         return perf;
     }
@@ -91,12 +88,13 @@ public class PerfilController {
     //agregado para testeos
     @PutMapping ("perfil/agregarImg/{id}")
     public String saveImagen(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestParam("img") MultipartFile img){
         interPerfil.loadImage(img, id);
         return "{ \"status\": \"ok\" }";
     }
     
+    @PreAuthorize("hasRole('USER')")
     @DeleteMapping ("perfil/borrarImg/{id}")
     public ResponseEntity<Perfil> deleteImagen(
             @PathVariable Long id //id del perfil
@@ -110,5 +108,15 @@ public class PerfilController {
         } catch (Exception e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }    
+    }
+    
+    @GetMapping("perfil/buscarByUsuario/{usuario}")
+    public ResponseEntity<Perfil> buscarByUsuario(@PathVariable("usuario") String usuario){
+        try{
+            Perfil perfil = interPerfil.buscarPerilByUsuario(usuario);
+            return new ResponseEntity<Perfil>(perfil, HttpStatus.OK);
+        } catch(Exception e){
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -23,4 +23,7 @@ public interface IPerfilService {
     public void loadImage(MultipartFile img, Long id);
     public void updateImage(MultipartFile img, Long id);
     public void deleteImage(String img, Long id);
+    
+    //metodos para la query del repository
+    public Perfil buscarPerilByUsuario(String usuario);
 }

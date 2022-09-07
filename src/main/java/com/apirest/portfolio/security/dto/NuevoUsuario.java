@@ -17,7 +17,7 @@ public class NuevoUsuario {
     private String usuario;
     
     @NotBlank
-    private String constrasena;
+    private String contrasena;
     private Set<String> roles = new HashSet<>();
 
     public String getUsuario() {
@@ -28,12 +28,12 @@ public class NuevoUsuario {
         this.usuario = usuario;
     }
 
-    public String getConstrasena() {
-        return constrasena;
+    public String getContrasena() {
+        return contrasena;
     }
 
-    public void setConstrasena(String constrasena) {
-        this.constrasena = constrasena;
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
     }
 
     public Set<String> getRoles() {
