@@ -4,9 +4,12 @@
  */
 package com.apirest.portfolio.controller;
 
+import com.apirest.portfolio.cloudinary.service.CloudinaryService;
 import com.apirest.portfolio.model.Perfil;
 import com.apirest.portfolio.service.IPerfilService;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +34,10 @@ import org.springframework.web.multipart.MultipartFile;
 public class PerfilController {
     @Autowired
     private IPerfilService interPerfil;
+    
+    //injectar el servicio de cloudinary creado
+    @Autowired
+    private CloudinaryService cloudinaryService;
     
     @GetMapping ("perfil/traer")
     public List<Perfil> getPerfiles(){
@@ -85,29 +92,47 @@ public class PerfilController {
         return perf;
     }
     
-    //agregado para testeos
     @PutMapping ("perfil/agregarImg/{id}")
-    public String saveImagen(
+    public ResponseEntity<Map> saveImagen(
             @PathVariable("id") Long id,
             @RequestParam("img") MultipartFile img){
-        interPerfil.loadImage(img, id);
-        return "{ \"status\": \"ok\" }";
+  
+        try {
+            Map result = cloudinaryService.upload(img);
+            //una vez que el servicio sube la imagen verificar el response
+            //y con los pares public_id y format armar el nombre de la imagen
+            //verificar el par url
+            interPerfil.loadImage(img, id);
+            return new ResponseEntity(result, HttpStatus.OK);
+        } catch (IOException e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (Exception e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }  
     }
     
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping ("perfil/borrarImg/{id}")
     public ResponseEntity<Perfil> deleteImagen(
-            @PathVariable Long id //id del perfil
+            @PathVariable("id") Long id //id del perfil
         ){
         
         try{
             Perfil perf = interPerfil.findPerfil(id);
-            perf.setFoto("perfil_foto_default.jpg");
-            interPerfil.savePerfil(perf);
-            return new ResponseEntity<> (perf, HttpStatus.OK);
+            Map result = cloudinaryService.delete(perf.getFoto());
+            if (!result.isEmpty()){
+                perf.setFoto("perfil_foto_default.jpg");
+                interPerfil.savePerfil(perf);
+                return new ResponseEntity<>(perf, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            }
+            
+        } catch (IOException e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }    
+        }     
     }
     
     @GetMapping("perfil/buscarByUsuario/{usuario}")
