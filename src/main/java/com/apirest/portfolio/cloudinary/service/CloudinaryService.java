@@ -36,6 +36,7 @@ public class CloudinaryService {
     public Map upload(MultipartFile img) throws IOException{
         File file = convert(img);
         Map result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+        file.delete();
         return result;
     }
     
@@ -47,9 +48,9 @@ public class CloudinaryService {
     //convertir el multipartfile a un file
     private File convert(MultipartFile img) throws IOException{
         File file = new File(img.getOriginalFilename());
-//        FileOutputStream fileoutputstream = new FileOutputStream(file);
-//        fileoutputstream.write(file.getBytes());
-//        fileoutputstream.close();
+        try (FileOutputStream fileoutputstream = new FileOutputStream(file)) {
+            fileoutputstream.write(img.getBytes());
+        }
         return file;
     }
 }

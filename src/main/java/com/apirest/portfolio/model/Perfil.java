@@ -37,6 +37,12 @@ public class Perfil {
     private String github;
     @Column(name="foto")
     private String foto;
+    //nuevos atributos
+    @Column(name="foto_url")
+    private String foto_url;
+    @Column(name="foto_public_id")
+    private String foto_public_url;
+    //hasta aqui
     @Column(name="acercade")
     private String acercade;
     @Column(name="usuarios_id")

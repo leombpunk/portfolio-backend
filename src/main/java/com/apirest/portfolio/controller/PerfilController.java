@@ -5,11 +5,15 @@
 package com.apirest.portfolio.controller;
 
 import com.apirest.portfolio.cloudinary.service.CloudinaryService;
+import com.apirest.portfolio.dto.Imagen;
+import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Perfil;
 import com.apirest.portfolio.service.IPerfilService;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -98,16 +102,36 @@ public class PerfilController {
             @RequestParam("img") MultipartFile img){
   
         try {
+            //verificar que sea una imagen lo que recibe el endpoint
+            BufferedImage bufferedImg = ImageIO.read(img.getInputStream());
+            if (bufferedImg == null){ //si es nulo no es una imagen
+                return new ResponseEntity(new Mensaje("El archivo no es una imagen!"), HttpStatus.BAD_REQUEST);
+            }
+            
+            //inicio de codigo a testear
+            //uso el servicio para verificar si el perfil existe
+            //si no existe lanza una exception al intentar asignar el resultado
+            //y asi evita que se ejecute el servicio de cloudinary y la imagen no sube
+            Perfil perf = interPerfil.findPerfil(id);
+            //System.out.print("perfil id: "+perf.getId().toString());
+            if (perf.getId().toString() == ""){
+                System.out.print("esto no funciona si el id del perfil no existe, es un absurdo porque el id es Long");
+            }
+            //fin de codigo a testear
+            
+            //tambien puedo usar el servicio de perfil para buscar el perfil por el id, si devuelve un registro procedo a hacer el resto
             Map result = cloudinaryService.upload(img);
             //una vez que el servicio sube la imagen verificar el response
             //y con los pares public_id y format armar el nombre de la imagen
             //verificar el par url
-            interPerfil.loadImage(img, id);
-            return new ResponseEntity(result, HttpStatus.OK);
+            //System.out.print(result.get("public_id"));
+            Imagen imagen = new Imagen("perfil_foto_"+id.hashCode()+".jpg", (String) result.get("url"), (String) result.get("public_id"));
+            interPerfil.loadImage(imagen, id);
+            return new ResponseEntity(null, HttpStatus.OK);
         } catch (IOException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje("Algo salio mal"), HttpStatus.NOT_FOUND);
         }  
     }
     
@@ -118,6 +142,7 @@ public class PerfilController {
         ){
         
         try{
+            //hacer lo mismo que en el metodo saveImagen
             Perfil perf = interPerfil.findPerfil(id);
             Map result = cloudinaryService.delete(perf.getFoto());
             if (!result.isEmpty()){
