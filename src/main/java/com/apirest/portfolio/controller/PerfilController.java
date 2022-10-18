@@ -108,16 +108,10 @@ public class PerfilController {
                 return new ResponseEntity(new Mensaje("El archivo no es una imagen!"), HttpStatus.BAD_REQUEST);
             }
             
-            //inicio de codigo a testear
             //uso el servicio para verificar si el perfil existe
-            //si no existe lanza una exception al intentar asignar el resultado
-            //y asi evita que se ejecute el servicio de cloudinary y la imagen no sube
-            Perfil perf = interPerfil.findPerfil(id);
-            //System.out.print("perfil id: "+perf.getId().toString());
-            if (perf.getId().toString() == ""){
-                System.out.print("esto no funciona si el id del perfil no existe, es un absurdo porque el id es Long");
+            if (!interPerfil.existPerfilById(id)){
+                return new ResponseEntity(new Mensaje("El perfil indicado no existe!"), HttpStatus.NOT_FOUND);
             }
-            //fin de codigo a testear
             
             //tambien puedo usar el servicio de perfil para buscar el perfil por el id, si devuelve un registro procedo a hacer el resto
             Map result = cloudinaryService.upload(img);
@@ -144,19 +138,19 @@ public class PerfilController {
         try{
             //hacer lo mismo que en el metodo saveImagen
             Perfil perf = interPerfil.findPerfil(id);
-            Map result = cloudinaryService.delete(perf.getFoto());
+            Map result = cloudinaryService.delete(perf.getFoto_public_id());
             if (!result.isEmpty()){
                 perf.setFoto("perfil_foto_default.jpg");
                 interPerfil.savePerfil(perf);
                 return new ResponseEntity<>(perf, HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+                return new ResponseEntity(new Mensaje("Problemas al intentar borrar la imagen."), HttpStatus.NOT_FOUND);
             }
             
         } catch (IOException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje("Algo salio mal"), HttpStatus.NOT_FOUND);
         }     
     }
     

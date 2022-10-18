@@ -41,7 +41,7 @@ public class Perfil {
     @Column(name="foto_url")
     private String foto_url;
     @Column(name="foto_public_id")
-    private String foto_public_url;
+    private String foto_public_id;
     //hasta aqui
     @Column(name="acercade")
     private String acercade;

@@ -27,4 +27,7 @@ public interface IPerfilService {
     
     //metodos para la query del repository
     public Perfil buscarPerilByUsuario(String usuario);
+    
+    //nuevo metodo agregado -> replicar en las demas interfaces que lo necesiten
+    public Boolean existPerfilById(Long id);
 }

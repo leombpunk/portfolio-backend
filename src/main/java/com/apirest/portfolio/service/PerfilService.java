@@ -61,7 +61,7 @@ public class PerfilService implements IPerfilService {
         //busco el perfil por el id
         Perfil perf = perfRepository.getById(id);
         perf.setFoto(img.getFoto_nombre());
-        perf.setFoto_public_url(img.getFoto_public_id());
+        perf.setFoto_public_id(img.getFoto_public_id());
         perf.setFoto_url(img.getFoto_url());
         perfRepository.save(perf);
     }
@@ -85,6 +85,14 @@ public class PerfilService implements IPerfilService {
     public Perfil buscarPerilByUsuario(String usuario) {
         Perfil perfil = perfRepository.perfilByUsuario(usuario);
         return perfil;
+    }
+    
+    
+    //este codigo me viene bien para ponerlo en perfilcontroller en el metodo saveImagen y deleteImagen
+    //comprueba que existe un registro con dicho id pasado por parametro
+    @Override
+    public Boolean existPerfilById(Long id){
+        return perfRepository.existsById(id);
     }
     
 }
