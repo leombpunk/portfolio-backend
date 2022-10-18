@@ -28,8 +28,6 @@ public class PerfilService implements IPerfilService {
     @Autowired
     private PerfilRepository perfRepository;
     
-    @Autowired
-    private CloudinaryService cloudinary;// esta es otra opcion para que no se suba la imagen a lo bonso
     
     @Override
     public List<Perfil> getPerfiles() {
@@ -94,5 +92,4 @@ public class PerfilService implements IPerfilService {
     public Boolean existPerfilById(Long id){
         return perfRepository.existsById(id);
     }
-    
 }

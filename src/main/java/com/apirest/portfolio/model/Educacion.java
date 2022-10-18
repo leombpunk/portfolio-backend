@@ -30,6 +30,12 @@ public class Educacion {
     private String habilidades;
     @Column(name="logo")
     private String logo;
+    //nuevos atributos
+    @Column(name="logo_url")
+    private String logo_url;
+    @Column(name="logo_public_id")
+    private String logo_public_id;
+    //hasta aqui
     @Column(name="titulo")
     private String titulo;
     @Column(name="desde")

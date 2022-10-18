@@ -4,6 +4,7 @@
  */
 package com.apirest.portfolio.service;
 
+import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.model.Proyecto;
 import com.apirest.portfolio.repository.ProyectoRepository;
 import java.io.IOException;
@@ -54,44 +55,12 @@ public class ProyectoService implements IProyectoService {
     }
 
     @Override
-    public void loadImage(MultipartFile img, Long id) {
-        //reviso que la imagen no este vacia
+    public void loadImage(Imagen img, Long id) {
         Proyecto pro = proyectoRepository.getById(id);
-        if(!img.isEmpty()){
-            //creo una variable con la ruta donde almacenare las imagenes
-            Path directorioImagenes = Paths.get("src//main//resources//static/images");
-            //creo una variable donde guardo la ruta absoluta
-            String rutaAbsoluta = directorioImagenes.toFile().getAbsolutePath();
-            
-            //intento obtener los datos de la imagen en un try por si da error
-            try {
-                //creo una variable para la imagen
-                byte[] bytesImg = img.getBytes();
-                //creo el nombre de la imagen
-                String nombreImagen = "proyecto_foto_" + id.hashCode() + ".jpg";
-                //establezco la ruta para guardar la imagen
-                //Path rutaCompleta = Paths.get(rutaAbsoluta + "//" + img.getOriginalFilename());
-                Path rutaCompleta = Paths.get(rutaAbsoluta + "//" + nombreImagen);
-                //al crear el nombre de la imagen verificar si esta existe,
-                //si existe la borrare.
-                Files.deleteIfExists(rutaCompleta);
-                //guardo la imagen en la ruta establecida
-                Files.write(rutaCompleta, bytesImg);
-                
-                //debe decidir si delegar el guardado de la imagen aqui o
-                //como procedo
-                pro.setLogo(nombreImagen);
-                proyectoRepository.save(pro);
-                
-                //crear un nombre para cada imagen en el siguietne formato propuesto
-                //perfil-01-02.jpg -> primero el nombre de la clase a la que pertenece
-                //liego el id del usuario y por ultimo el id del perfil y su repectivo
-                //nombre de extension
-                
-            } catch (IOException ex) {
-                Logger.getLogger(PerfilService.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        pro.setLogo(img.getFoto_nombre());
+        pro.setLogo_public_id(img.getFoto_public_id());
+        pro.setLogo_url(img.getFoto_url());
+        proyectoRepository.save(pro);
     }
 
     @Override
@@ -110,5 +79,9 @@ public class ProyectoService implements IProyectoService {
         List<Proyecto> listaProyecto = proyectoRepository.listaProyectosByUsuario(usuario);
         return listaProyecto;
     }
-    
+
+    @Override
+    public Boolean existProyectoById(Long id) {
+        return proyectoRepository.existsById(id);
+    }
 }

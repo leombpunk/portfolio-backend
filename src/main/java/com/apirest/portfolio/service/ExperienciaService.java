@@ -4,6 +4,7 @@
  */
 package com.apirest.portfolio.service;
 
+import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.model.Experiencia;
 import com.apirest.portfolio.repository.ExperienciaRepository;
 import java.io.IOException;
@@ -54,44 +55,12 @@ public class ExperienciaService implements IExperienciaService {
     }
 
     @Override
-    public void loadImage(MultipartFile img, Long id) {
-        //reviso que la imagen no este vacia
+    public void loadImage(Imagen img, Long id) {
         Experiencia expe = expeRepository.getById(id);
-        if(!img.isEmpty()){
-            //creo una variable con la ruta donde almacenare las imagenes
-            Path directorioImagenes = Paths.get("src//main//resources//static/images");
-            //creo una variable donde guardo la ruta absoluta
-            String rutaAbsoluta = directorioImagenes.toFile().getAbsolutePath();
-            
-            //intento obtener los datos de la imagen en un try por si da error
-            try {
-                //creo una variable para la imagen
-                byte[] bytesImg = img.getBytes();
-                //creo el nombre de la imagen
-                String nombreImagen = "experiencia_foto_" + id.hashCode() + ".jpg";
-                //establezco la ruta para guardar la imagen
-                //Path rutaCompleta = Paths.get(rutaAbsoluta + "//" + img.getOriginalFilename());
-                Path rutaCompleta = Paths.get(rutaAbsoluta + "//" + nombreImagen);
-                //al crear el nombre de la imagen verificar si esta existe,
-                //si existe la borrare.
-                Files.deleteIfExists(rutaCompleta);
-                //guardo la imagen en la ruta establecida
-                Files.write(rutaCompleta, bytesImg);
-                
-                //debe decidir si delegar el guardado de la imagen aqui o
-                //como procedo
-                expe.setLogo(nombreImagen);
-                expeRepository.save(expe);
-                
-                //crear un nombre para cada imagen en el siguietne formato propuesto
-                //perfil-01-02.jpg -> primero el nombre de la clase a la que pertenece
-                //liego el id del usuario y por ultimo el id del perfil y su repectivo
-                //nombre de extension
-                
-            } catch (IOException ex) {
-                Logger.getLogger(PerfilService.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        expe.setLogo(img.getFoto_nombre());
+        expe.setLogo_public_id(img.getFoto_public_id());
+        expe.setLogo_url(img.getFoto_url());
+        expeRepository.save(expe);
     }
 
     @Override
@@ -109,5 +78,9 @@ public class ExperienciaService implements IExperienciaService {
         List<Experiencia> listaExperiencia = expeRepository.listaExperienciaByUsuario(usuario);
         return listaExperiencia;
     }
-    
+
+    @Override
+    public Boolean existExperienciaById(Long id) {
+        return expeRepository.existsById(id);
+    }
 }

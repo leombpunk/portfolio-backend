@@ -4,6 +4,7 @@
  */
 package com.apirest.portfolio.service;
 
+import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.model.Proyecto;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,11 +21,13 @@ public interface IProyectoService {
     
     //prueba para imagenes
     public byte[] getImage(Long id); //or name image
-    public void loadImage(MultipartFile img, Long id);
+    public void loadImage(Imagen img, Long id);
     public void updateImage(MultipartFile img, Long id);
     public void deleteImage(String img, Long id);
     
     //nuevo metodo
     //interfaz para @Query personalizada
     public List<Proyecto> getProyectosByUsuario(String usuario);
+    
+    public Boolean existProyectoById(Long id);
 }

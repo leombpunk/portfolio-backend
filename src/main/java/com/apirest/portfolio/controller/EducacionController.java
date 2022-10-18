@@ -4,9 +4,16 @@
  */
 package com.apirest.portfolio.controller;
 
+import com.apirest.portfolio.cloudinary.service.CloudinaryService;
+import com.apirest.portfolio.dto.Imagen;
+import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Educacion;
 import com.apirest.portfolio.service.IEducacionService;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class EducacionController {
     @Autowired
     private IEducacionService interEducacion;
+    
+    @Autowired
+    private CloudinaryService cloudinaryService;
     
     @GetMapping("educacion/traer")
     public List<Educacion> getEducaciones(){
@@ -92,11 +102,26 @@ public class EducacionController {
     
     //agregado para testeos
     @PutMapping ("educacion/agregarImg/{id}")
-    public String saveImagen(
+    public ResponseEntity<Map> saveImagen(
             @PathVariable Long id,
             @RequestParam("img") MultipartFile img){
-        interEducacion.loadImage(img, id);
-        return "{ \"status\": \"ok\" }";
+        try {
+            BufferedImage bufferedImg = ImageIO.read(img.getInputStream());
+            if (bufferedImg == null){ //si es nulo no es una imagen
+                return new ResponseEntity(new Mensaje("El archivo no es una imagen!"), HttpStatus.BAD_REQUEST);
+            }
+            if (!interEducacion.existEducacionById(id)){
+                return new ResponseEntity(new Mensaje("El titulo/curso indicado no existe!"), HttpStatus.NOT_FOUND);
+            }
+            Map result = cloudinaryService.upload(img);
+            Imagen imagen = new Imagen("perfil_educacion_"+id.hashCode()+".jpg", (String) result.get("url"), (String) result.get("public_id"));
+            interEducacion.loadImage(imagen, id);
+            return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
+        } catch (IOException e){
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity(new Mensaje("Algo salio mal"), HttpStatus.NOT_FOUND);
+        }
     }
     
     @DeleteMapping ("educacion/borrarImg/{id}")

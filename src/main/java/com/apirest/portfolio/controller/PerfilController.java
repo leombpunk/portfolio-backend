@@ -121,7 +121,7 @@ public class PerfilController {
             //System.out.print(result.get("public_id"));
             Imagen imagen = new Imagen("perfil_foto_"+id.hashCode()+".jpg", (String) result.get("url"), (String) result.get("public_id"));
             interPerfil.loadImage(imagen, id);
-            return new ResponseEntity(null, HttpStatus.OK);
+            return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
         } catch (IOException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e){
@@ -137,14 +137,18 @@ public class PerfilController {
         
         try{
             //hacer lo mismo que en el metodo saveImagen
-            Perfil perf = interPerfil.findPerfil(id);
-            Map result = cloudinaryService.delete(perf.getFoto_public_id());
-            if (!result.isEmpty()){
-                perf.setFoto("perfil_foto_default.jpg");
-                interPerfil.savePerfil(perf);
-                return new ResponseEntity<>(perf, HttpStatus.OK);
+            if (interPerfil.existPerfilById(id)){
+                Perfil perf = interPerfil.findPerfil(id);
+                Map result = cloudinaryService.delete(perf.getFoto_public_id());
+                if (!result.isEmpty()){
+                    perf.setFoto("perfil_foto_default.jpg");
+                    interPerfil.savePerfil(perf);
+                    return new ResponseEntity<>(perf, HttpStatus.OK);
+                } else {
+                    return new ResponseEntity(new Mensaje("Problemas al intentar borrar la imagen."), HttpStatus.NOT_FOUND);
+                }
             } else {
-                return new ResponseEntity(new Mensaje("Problemas al intentar borrar la imagen."), HttpStatus.NOT_FOUND);
+                return new ResponseEntity(new Mensaje("Perfil no encontrado!"), HttpStatus.NOT_FOUND);
             }
             
         } catch (IOException e){

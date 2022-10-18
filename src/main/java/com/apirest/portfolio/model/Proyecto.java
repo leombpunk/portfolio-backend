@@ -30,6 +30,12 @@ public class Proyecto {
     private String hasta;
     @Column(name="logo")
     private String logo;
+    //nuevos atributos
+    @Column(name="logo_url")
+    private String logo_url;
+    @Column(name="logo_public_id")
+    private String logo_public_id;
+    //hasta aqui
     @Column(name="descripcion")
     private String descripcion;
     @Column(name="enlace")
