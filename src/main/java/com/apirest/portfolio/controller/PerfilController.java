@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,17 +44,30 @@ public class PerfilController {
     @Autowired
     private CloudinaryService cloudinaryService;
     
+    @Value("${image.default.perfil.nombre}")
+    private String imagen;
+    
+    @Value("${image.default.perfil.public.id}")
+    private String imagen_public_id;
+    
+    @Value("${image.default.perfil.url}")
+    private String imagen_url;
+    
+    
+    //sin usar
     @GetMapping ("perfil/traer")
     public List<Perfil> getPerfiles(){
         return interPerfil.getPerfiles();
     }
     
+    //sin usar
     @PostMapping ("perfil/crear")
     public String createPerfil(@RequestBody Perfil perf){
         interPerfil.savePerfil(perf);
         return "El perfil se creo correctamente.";
     }
     
+    //sin usar
     @DeleteMapping ("perfil/borrar/{id}")
     public String deletePerfil (@PathVariable("id") Long id){
         interPerfil.deletePerfil(id);
@@ -96,6 +110,7 @@ public class PerfilController {
         return perf;
     }
     
+    //testeado -> testear los demas endpoints de los demas controller
     @PutMapping ("perfil/agregarImg/{id}")
     public ResponseEntity<Map> saveImagen(
             @PathVariable("id") Long id,
@@ -119,7 +134,7 @@ public class PerfilController {
             //y con los pares public_id y format armar el nombre de la imagen
             //verificar el par url
             //System.out.print(result.get("public_id"));
-            Imagen imagen = new Imagen("perfil_foto_"+id.hashCode()+".jpg", (String) result.get("url"), (String) result.get("public_id"));
+            Imagen imagen = new Imagen("perfil_foto_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
             interPerfil.loadImage(imagen, id);
             return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
         } catch (IOException e){
@@ -129,6 +144,7 @@ public class PerfilController {
         }  
     }
     
+    //falta testear
     @PreAuthorize("hasRole('USER')")
     @DeleteMapping ("perfil/borrarImg/{id}")
     public ResponseEntity<Perfil> deleteImagen(
@@ -139,13 +155,25 @@ public class PerfilController {
             //hacer lo mismo que en el metodo saveImagen
             if (interPerfil.existPerfilById(id)){
                 Perfil perf = interPerfil.findPerfil(id);
-                Map result = cloudinaryService.delete(perf.getFoto_public_id());
-                if (!result.isEmpty()){
-                    perf.setFoto("perfil_foto_default.jpg");
+                //comprobar que la imagen_public_id sea distinta que la que devuelve perf.getFoto_public_id
+                //para no borrar la imagen por defecto del proyecto que se encuentra en cloudinary
+                if (imagen_public_id != perf.getFoto_public_id()){
+                    Map result = cloudinaryService.delete(perf.getFoto_public_id());
+                    if (!result.isEmpty()){
+                        perf.setFoto(imagen);
+                        perf.setFoto_public_id(imagen_public_id);
+                        perf.setFoto_url(imagen_url);
+                        interPerfil.savePerfil(perf);
+                        return new ResponseEntity<>(perf, HttpStatus.OK);
+                    } else {
+                        return new ResponseEntity(new Mensaje("Problemas al intentar borrar la imagen."), HttpStatus.NOT_FOUND);
+                    }
+                } else {
+                    perf.setFoto(imagen);
+                    perf.setFoto_public_id(imagen_public_id);
+                    perf.setFoto_url(imagen_url);
                     interPerfil.savePerfil(perf);
                     return new ResponseEntity<>(perf, HttpStatus.OK);
-                } else {
-                    return new ResponseEntity(new Mensaje("Problemas al intentar borrar la imagen."), HttpStatus.NOT_FOUND);
                 }
             } else {
                 return new ResponseEntity(new Mensaje("Perfil no encontrado!"), HttpStatus.NOT_FOUND);

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -40,6 +41,15 @@ public class ProyectoController {
     
     @Autowired
     private CloudinaryService cloudinaryService;
+    
+    @Value("${image.default.proyecto.nombre}")
+    private String imagen;
+    
+    @Value("${image.default.proyecto.public.id}")
+    private String imagen_public_id;
+    
+    @Value("${image.default.proyecto.url}")
+    private String imagen_url;
     
     @GetMapping("proyecto/traer")
     public ResponseEntity<List<Proyecto>> getProyectos(){
@@ -103,6 +113,7 @@ public class ProyectoController {
         }
     }
     
+    //sin usar
     @GetMapping("proyecto/buscar/{id}")
     public Proyecto findProyecto(@PathVariable Long id){
         Proyecto pro = interProyecto.findProyecto(id);
@@ -139,13 +150,34 @@ public class ProyectoController {
         ){
         
         try{
-            Proyecto pro = interProyecto.findProyecto(id);
-            pro.setLogo("proyecto_foto_default.jpg");
-            interProyecto.saveProyecto(pro);
-            return new ResponseEntity<> (pro, HttpStatus.OK);
-        } catch (Exception e){
+            if (interProyecto.existProyectoById(id)){
+                Proyecto pro = interProyecto.findProyecto(id);
+                if (imagen_public_id != pro.getLogo_public_id()){
+                    Map result = cloudinaryService.delete(pro.getLogo_public_id());
+                    if (!result.isEmpty()){
+                        pro.setLogo(imagen);
+                        pro.setLogo_public_id(imagen_public_id);
+                        pro.setLogo_url(imagen_url);
+                        interProyecto.saveProyecto(pro);
+                        return new ResponseEntity<> (pro, HttpStatus.OK);
+                    } else {
+                        return new ResponseEntity(new Mensaje("Problemas al intentar borrar la imagen."), HttpStatus.NOT_FOUND);
+                    }
+                } else {
+                    pro.setLogo(imagen);
+                    pro.setLogo_public_id(imagen_public_id);
+                    pro.setLogo_url(imagen_url);
+                    interProyecto.saveProyecto(pro);
+                    return new ResponseEntity<> (pro, HttpStatus.OK);
+                }
+            } else {
+                return new ResponseEntity(new Mensaje("Proyecto no encontrado!"), HttpStatus.NOT_FOUND);
+            }
+        } catch (IOException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }    
+        } catch (Exception e){
+            return new ResponseEntity(new Mensaje("Algo salio mal"), HttpStatus.NOT_FOUND);
+        }     
     }
     
     //metodo para traer solo lo referente al usuario solicitado

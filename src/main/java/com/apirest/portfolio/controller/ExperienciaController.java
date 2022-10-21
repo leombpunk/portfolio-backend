@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -41,6 +42,15 @@ public class ExperienciaController {
     @Autowired
     private CloudinaryService cloudinaryService;
     
+    @Value("${image.default.experiencia.nombre}")
+    private String imagen;
+    
+    @Value("${image.default.experiencia.public.id}")
+    private String imagen_public_id;
+    
+    @Value("${image.default.experiencia.url}")
+    private String imagen_url;
+    
     @GetMapping("experiencia/traer")
     public List<Experiencia> getExperiencias(){
         return interExperiencia.getExperiencias();
@@ -49,8 +59,9 @@ public class ExperienciaController {
     @PostMapping("experiencia/crear")
     public ResponseEntity<Experiencia> createExperiencia(@RequestBody Experiencia expe){
         try {
-            expe.setLogo("experiencia_foto_default.jpg");
-            //System.out.print(expe);
+            expe.setLogo(imagen);
+            expe.setLogo_public_id(imagen_public_id);
+            expe.setLogo_url(imagen_url);
             interExperiencia.saveExperiencia(expe);
             return new ResponseEntity<>(expe, HttpStatus.OK);
         } catch (Exception e){
@@ -101,6 +112,7 @@ public class ExperienciaController {
         
     }
     
+    //sin usar
     @GetMapping("experiencia/buscar/{id}")
     public Experiencia findExperiencia(@PathVariable Long id){
         Experiencia expe = interExperiencia.findExperiencia(id);
@@ -121,7 +133,7 @@ public class ExperienciaController {
                 return new ResponseEntity(new Mensaje("La experiencia laboral indicada no existe!"), HttpStatus.NOT_FOUND);
             }
             Map result = cloudinaryService.upload(img);
-            Imagen imagen = new Imagen("perfil_experiencia_"+id.hashCode()+".jpg", (String) result.get("url"), (String) result.get("public_id"));
+            Imagen imagen = new Imagen("perfil_experiencia_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
             interExperiencia.loadImage(imagen, id);
             return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
         } catch (IOException e){
@@ -137,13 +149,34 @@ public class ExperienciaController {
         ){
         
         try{
-            Experiencia expe = interExperiencia.findExperiencia(id);
-            expe.setLogo("experiencia_foto_default.jpg");
-            interExperiencia.saveExperiencia(expe);
-            return new ResponseEntity<> (expe, HttpStatus.OK);
-        } catch (Exception e){
+            if (interExperiencia.existExperienciaById(id)){
+                Experiencia expe = interExperiencia.findExperiencia(id);
+                if (imagen_public_id != expe.getLogo_public_id()){
+                    Map result = cloudinaryService.delete(expe.getLogo_public_id());
+                    if (!result.isEmpty()){
+                        expe.setLogo(imagen);
+                        expe.setLogo_public_id(imagen_public_id);
+                        expe.setLogo_url(imagen_url);
+                        interExperiencia.saveExperiencia(expe);
+                        return new ResponseEntity<> (expe, HttpStatus.OK);
+                    } else {
+                        return new ResponseEntity(new Mensaje("Problemas al intentar borrar la imagen."), HttpStatus.NOT_FOUND);
+                    }
+                } else {
+                    expe.setLogo(imagen);
+                    expe.setLogo_public_id(imagen_public_id);
+                    expe.setLogo_url(imagen_url);
+                    interExperiencia.saveExperiencia(expe);
+                    return new ResponseEntity<> (expe, HttpStatus.OK);
+                }
+            } else {
+                return new ResponseEntity(new Mensaje("Experiencia laboral no encontrada!"), HttpStatus.NOT_FOUND);
+            }
+        } catch (IOException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }    
+        } catch (Exception e){
+            return new ResponseEntity(new Mensaje("Algo salio mal"), HttpStatus.NOT_FOUND);
+        }     
     }
     
     @GetMapping("experiencia/buscarByUsuario/{usuario}")
