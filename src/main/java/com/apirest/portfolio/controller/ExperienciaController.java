@@ -175,7 +175,7 @@ public class ExperienciaController {
         } catch (IOException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e){
-            return new ResponseEntity(new Mensaje("Algo salio mal"+e.getMessage()), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje("Algo salio mal "+e.getMessage()), HttpStatus.NOT_FOUND);
         }     
     }
     
