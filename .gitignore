@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### yo ###
+src/main/resources/real.properties
