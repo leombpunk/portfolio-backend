@@ -11,6 +11,7 @@ import com.apirest.portfolio.model.Educacion;
 import com.apirest.portfolio.service.IEducacionService;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
@@ -34,8 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
  * @author PCcito
  */
 @RestController
-//@CrossOrigin(origins="http://localhost:4200")
-@CrossOrigin(origins="https://app-portfolio-36e26.web.app")
+@CrossOrigin(origins="http://localhost:4200")
+//@CrossOrigin(origins="https://app-portfolio-36e26.web.app")
 public class EducacionController {
     @Autowired
     private IEducacionService interEducacion;

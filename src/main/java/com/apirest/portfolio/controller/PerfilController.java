@@ -35,8 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
  * @author PCcito
  */
 @RestController
-//@CrossOrigin(origins="http://localhost:4200")
-@CrossOrigin(origins="https://app-portfolio-36e26.web.app")
+@CrossOrigin(origins="http://localhost:4200")
+//@CrossOrigin(origins="https://app-portfolio-36e26.web.app")
 public class PerfilController {
     @Autowired
     private IPerfilService interPerfil;

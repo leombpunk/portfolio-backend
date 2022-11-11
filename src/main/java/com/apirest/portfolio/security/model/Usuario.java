@@ -17,15 +17,14 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+
 
 /**
  *
  * @author PCcito
  */
-//@Getter @Setter
 @Entity(name="usuarios")
 public class Usuario {
     @Id
@@ -34,11 +33,13 @@ public class Usuario {
     private Long id;
     
     @NotBlank
-    @Size(max=16)
+    @Size(min=4, max=16)
+    @Pattern(regexp="^[a-zA-Z0-9]+$")
     @Column(name="usuario", unique=true)
     private String usuario;
     
     @NotBlank
+    @Size(min=8, max=16)
     @Column(name="contrasena")
     private String contrasena;
     
