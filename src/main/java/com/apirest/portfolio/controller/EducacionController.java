@@ -11,10 +11,10 @@ import com.apirest.portfolio.model.Educacion;
 import com.apirest.portfolio.service.IEducacionService;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -59,15 +59,15 @@ public class EducacionController {
     }
     
     @PostMapping("educacion/crear")
-    public ResponseEntity<Educacion> createEducacion(@RequestBody Educacion edu){
+    public ResponseEntity<Educacion> createEducacion(@Valid @RequestBody Educacion edu){
         try {
             edu.setLogo(imagen);
             edu.setLogo_public_id(imagen_public_id);
             edu.setLogo_url(imagen_url);
             interEducacion.saveEducacion(edu);
-            return new ResponseEntity<>(edu, HttpStatus.OK);
+            return new ResponseEntity<>(edu, HttpStatus.CREATED);
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -179,9 +179,12 @@ public class EducacionController {
     public ResponseEntity<List<Educacion>> buscarByUsuario(@PathVariable("usuario") String usuario){
         try{
             List<Educacion> listaEducacion = interEducacion.getEducacionByUsuario(usuario);
-            return new ResponseEntity<List<Educacion>>(listaEducacion, HttpStatus.OK);
+            if (listaEducacion.isEmpty()){
+                return new ResponseEntity(new Mensaje("Sin estudios para el usuario: " + usuario), HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(listaEducacion, HttpStatus.OK);
         }catch(Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
