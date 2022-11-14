@@ -8,7 +8,7 @@ import com.apirest.portfolio.cloudinary.service.CloudinaryService;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Educacion;
-import com.apirest.portfolio.service.IEducacionService;
+import com.apirest.portfolio.service.EducacionService;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
@@ -39,7 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 //@CrossOrigin(origins="https://app-portfolio-36e26.web.app")
 public class EducacionController {
     @Autowired
-    private IEducacionService interEducacion;
+    private EducacionService interEducacion;
     
     @Autowired
     private CloudinaryService cloudinaryService;
@@ -53,21 +53,32 @@ public class EducacionController {
     @Value("${image.default.educacion.url}")
     private String imagen_url;
     
+    //usado para testeos con postman, luego de las pruebas desabilitarlo
     @GetMapping("educacion/traer")
-    public List<Educacion> getEducaciones(){
-        return interEducacion.getEducaciones();
+    public ResponseEntity<List<Educacion>> getEducaciones(){
+        List<Educacion> listaEducacion = interEducacion.getEducaciones();
+        return new ResponseEntity(listaEducacion, HttpStatus.OK);
     }
     
     @PostMapping("educacion/crear")
     public ResponseEntity<Educacion> createEducacion(@Valid @RequestBody Educacion edu){
         try {
+            if (!edu.getHasta().isBlank()){
+                if (!interEducacion.isValidDate(edu.getHasta())){
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                //si es nulo o vacio, seteo el campo como nulo
+                //lo que quiere decir que la fecha hasta es hasta el presente
+                edu.setHasta(null);
+            }
             edu.setLogo(imagen);
             edu.setLogo_public_id(imagen_public_id);
             edu.setLogo_url(imagen_url);
             interEducacion.saveEducacion(edu);
             return new ResponseEntity<>(edu, HttpStatus.CREATED);
         } catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -94,26 +105,39 @@ public class EducacionController {
             @RequestParam("hasta") String hasta){
         
         try{
-            Educacion edu = interEducacion.findEducacion(id);
-            edu.setInstitucion(institucion);
-            edu.setDesde(desde);
-            edu.setHasta(hasta);
-            //edu.setLogo(logo);
-            edu.setTitulo(titulo);
-            edu.setHabilidades(habilidades);
-            edu.setLocacion(locacion);
-            interEducacion.saveEducacion(edu);
-            return new ResponseEntity<>(edu, HttpStatus.OK);
+            if(interEducacion.existEducacionById(id)){
+                Educacion edu = interEducacion.findEducacion(id);
+                edu.setInstitucion(institucion);
+                if (interEducacion.isValidDate(desde)){
+                    edu.setDesde(desde);
+                } else {
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo desde, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+                if (interEducacion.isValidDate(hasta)){
+                    edu.setHasta(hasta);
+                } else {
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+                //edu.setLogo(logo);
+                edu.setTitulo(titulo);
+                edu.setHabilidades(habilidades);
+                edu.setLocacion(locacion);
+                interEducacion.saveEducacion(edu);
+                return new ResponseEntity<>(edu, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("Datos no encontrados para id: "+id), HttpStatus.NOT_FOUND);
+            }
+            
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
     //sin usar
-    @GetMapping("educacion/buscar/{id}")
+    /*@GetMapping("educacion/buscar/{id}")
     public Educacion findEducacion(@PathVariable Long id){
         return interEducacion.findEducacion(id);
-    }
+    }*/
     
     //agregado para testeos
     @PutMapping ("educacion/agregarImg/{id}")
@@ -143,30 +167,24 @@ public class EducacionController {
     public ResponseEntity<Educacion> deleteImagen(
             @PathVariable Long id //id de registro experiencia
         ){
-        
         try{
             if (interEducacion.existEducacionById(id)){
+                Imagen image = new Imagen(imagen, imagen_url, imagen_public_id);
                 Educacion edu = interEducacion.findEducacion(id);
                 if (imagen_public_id != edu.getLogo_public_id()){
                     Map result = cloudinaryService.delete(edu.getLogo_public_id());
                     if (!result.isEmpty()){
-                        edu.setLogo(imagen);
-                        edu.setLogo_public_id(imagen_public_id);
-                        edu.setLogo_url(imagen_url);
-                        interEducacion.saveEducacion(edu);
+                        interEducacion.loadImage(image, id);
                         return new ResponseEntity<> (edu, HttpStatus.OK);
                     } else {
                         return new ResponseEntity(new Mensaje("Problemas al intentar borrar la imagen."), HttpStatus.NOT_FOUND);
                     }
                 } else {
-                    edu.setLogo(imagen);
-                    edu.setLogo_public_id(imagen_public_id);
-                    edu.setLogo_url(imagen_url);
-                    interEducacion.saveEducacion(edu);
+                    interEducacion.loadImage(image, id);
                     return new ResponseEntity<> (edu, HttpStatus.OK);
                 }
             } else {
-                return new ResponseEntity(new Mensaje("Estudio/Curso no encontrada!"), HttpStatus.NOT_FOUND);
+                return new ResponseEntity(new Mensaje("Estudio/Curso no encontrado!"), HttpStatus.NOT_FOUND);
             }
         } catch (IOException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -180,7 +198,7 @@ public class EducacionController {
         try{
             List<Educacion> listaEducacion = interEducacion.getEducacionByUsuario(usuario);
             if (listaEducacion.isEmpty()){
-                return new ResponseEntity(new Mensaje("Sin estudios para el usuario: " + usuario), HttpStatus.NOT_FOUND);
+                return new ResponseEntity(new Mensaje("Sin estudios/cursos para el usuario: " + usuario), HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(listaEducacion, HttpStatus.OK);
         }catch(Exception e){

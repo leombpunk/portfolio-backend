@@ -81,7 +81,7 @@ public class Educacion {
     private String desde;
     
     
-    @Column(name="hasta")
+    @Column(name="hasta", nullable = true)
     private String hasta;
     
     @NotNull(message = "El id de usuario no puede ser nulo")

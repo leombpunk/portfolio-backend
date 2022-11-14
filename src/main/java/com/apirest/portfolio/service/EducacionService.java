@@ -7,13 +7,10 @@ package com.apirest.portfolio.service;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.model.Educacion;
 import com.apirest.portfolio.repository.EducacionRepository;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author PCcito
  */
 @Service
-public class EducacionService implements IEducacionService {
+public class EducacionService implements IEducacionService, IValidarFechaService {
     @Autowired
     private EducacionRepository eduRepository;
     
@@ -50,27 +47,12 @@ public class EducacionService implements IEducacionService {
     }
 
     @Override
-    public byte[] getImage(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public void loadImage(Imagen img, Long id) {
         Educacion edu = eduRepository.getById(id);
         edu.setLogo(img.getFoto_nombre());
         edu.setLogo_public_id(img.getFoto_public_id());
         edu.setLogo_url(img.getFoto_url());
         eduRepository.save(edu);
-    }
-
-    @Override
-    public void updateImage(MultipartFile img, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void deleteImage(String img, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
@@ -82,5 +64,18 @@ public class EducacionService implements IEducacionService {
     @Override
     public Boolean existEducacionById(Long id) {
         return eduRepository.existsById(id);
+    }
+
+    @Override
+    public boolean isValidDate(String fecha) {
+        Pattern pattern = Pattern.compile("^(\\d{4}(\\/|-)(0[1-9]|1[0-2])\\2([0-2][0-9]|3[0-1]))$");
+        Matcher match = pattern.matcher(fecha);
+        if (!match.matches()){
+            return false;
+        }
+        else if (!GenericValidator.isDate(fecha, "yyyy-MM-dd", true)){
+            return false;
+        }
+        return true;
     }
 }

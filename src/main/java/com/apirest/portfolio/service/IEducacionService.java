@@ -20,10 +20,9 @@ public interface IEducacionService {
     public Educacion findEducacion(Long id);
     
     //prueba para imagenes
-    public byte[] getImage(Long id); //or name image
     public void loadImage(Imagen img, Long id);
-    public void updateImage(MultipartFile img, Long id);
-    public void deleteImage(String img, Long id);
+    //public void updateImage(Imagen img, Long id);
+    //public void deleteImage(Imagen img, Long id);
     
     //nuevo metodo
     //interfaz para @Query personalizada
