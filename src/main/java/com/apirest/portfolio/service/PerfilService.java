@@ -4,20 +4,12 @@
  */
 package com.apirest.portfolio.service;
 
-import com.apirest.portfolio.cloudinary.service.CloudinaryService;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.model.Perfil;
 import com.apirest.portfolio.repository.PerfilRepository;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -65,26 +57,10 @@ public class PerfilService implements IPerfilService {
     }
 
     @Override
-    public void updateImage(MultipartFile img, Long id) {
-        throw new UnsupportedOperationException("Not implemented yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void deleteImage(String img, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public byte[] getImage(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public Perfil buscarPerilByUsuario(String usuario) {
         Perfil perfil = perfRepository.perfilByUsuario(usuario);
         return perfil;
     }
-    
     
     //este codigo me viene bien para ponerlo en perfilcontroller en el metodo saveImagen y deleteImagen
     //comprueba que existe un registro con dicho id pasado por parametro

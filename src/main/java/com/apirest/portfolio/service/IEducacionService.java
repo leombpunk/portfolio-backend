@@ -7,7 +7,6 @@ package com.apirest.portfolio.service;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.model.Educacion;
 import java.util.List;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -21,8 +20,6 @@ public interface IEducacionService {
     
     //prueba para imagenes
     public void loadImage(Imagen img, Long id);
-    //public void updateImage(Imagen img, Long id);
-    //public void deleteImage(Imagen img, Long id);
     
     //nuevo metodo
     //interfaz para @Query personalizada

@@ -8,7 +8,8 @@ import com.apirest.portfolio.cloudinary.service.CloudinaryService;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Experiencia;
-import com.apirest.portfolio.service.IExperienciaService;
+import com.apirest.portfolio.service.ExperienciaService;
+import com.apirest.portfolio.service.ValidarFechaService;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
@@ -38,7 +39,10 @@ import org.springframework.web.multipart.MultipartFile;
 //@CrossOrigin(origins="https://app-portfolio-36e26.web.app")
 public class ExperienciaController {
     @Autowired
-    private IExperienciaService interExperiencia;
+    private ExperienciaService interExperiencia;
+    
+    @Autowired
+    private ValidarFechaService fechaService;
     
     @Autowired
     private CloudinaryService cloudinaryService;

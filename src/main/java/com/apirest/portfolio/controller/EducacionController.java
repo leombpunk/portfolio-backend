@@ -9,6 +9,7 @@ import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Educacion;
 import com.apirest.portfolio.service.EducacionService;
+import com.apirest.portfolio.service.ValidarFechaService;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
@@ -42,6 +43,9 @@ public class EducacionController {
     private EducacionService interEducacion;
     
     @Autowired
+    private ValidarFechaService fechaService;
+    
+    @Autowired
     private CloudinaryService cloudinaryService;
     
     @Value("${image.default.educacion.nombre}")
@@ -54,17 +58,22 @@ public class EducacionController {
     private String imagen_url;
     
     //usado para testeos con postman, luego de las pruebas desabilitarlo
-    @GetMapping("educacion/traer")
+    /*@GetMapping("educacion/traer")
     public ResponseEntity<List<Educacion>> getEducaciones(){
         List<Educacion> listaEducacion = interEducacion.getEducaciones();
         return new ResponseEntity(listaEducacion, HttpStatus.OK);
-    }
+    }*/
     
     @PostMapping("educacion/crear")
     public ResponseEntity<Educacion> createEducacion(@Valid @RequestBody Educacion edu){
         try {
+            if (!edu.getDesde().isBlank()){
+                if (!fechaService.isValidDate(edu.getDesde())){
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo desde, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+            } 
             if (!edu.getHasta().isBlank()){
-                if (!interEducacion.isValidDate(edu.getHasta())){
+                if (!fechaService.isValidDate(edu.getHasta())){
                     return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
                 }
             } else {
@@ -93,14 +102,13 @@ public class EducacionController {
         }
     }
     
-    @PutMapping("educacion/editar/{id}")
+    /*@PutMapping("educacion/editar/{id}")
     public ResponseEntity<Educacion> editEducacion(
             @PathVariable Long id,
             @RequestParam("institucion") String institucion,
             @RequestParam("titulo") String titulo,
             @RequestParam("locacion") String locacion,
             @RequestParam("habilidades") String habilidades,
-            //@RequestParam("logo") String logo,
             @RequestParam("desde") String desde,
             @RequestParam("hasta") String hasta){
         
@@ -108,12 +116,12 @@ public class EducacionController {
             if(interEducacion.existEducacionById(id)){
                 Educacion edu = interEducacion.findEducacion(id);
                 edu.setInstitucion(institucion);
-                if (interEducacion.isValidDate(desde)){
+                if (fechaService.isValidDate(desde)){
                     edu.setDesde(desde);
                 } else {
                     return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo desde, no es una fecha valida"), HttpStatus.BAD_REQUEST);
                 }
-                if (interEducacion.isValidDate(hasta)){
+                if (fechaService.isValidDate(hasta)){
                     edu.setHasta(hasta);
                 } else {
                     return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
@@ -130,6 +138,36 @@ public class EducacionController {
             
         } catch (Exception e) {
             return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }*/
+    @PutMapping("educacion/editar/{id}")
+    public ResponseEntity<Educacion> editEducacion(
+            @PathVariable Long id,
+            @Valid @RequestBody Educacion edu){
+        try{
+            if(interEducacion.existEducacionById(id)){
+                Educacion educacion = interEducacion.findEducacion(id);
+                if (fechaService.isValidDate(edu.getDesde())){
+                    educacion.setDesde(edu.getDesde());
+                } else {
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo desde, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+                if (fechaService.isValidDate(edu.getHasta())){
+                    educacion.setHasta(edu.getHasta());
+                } else {
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+                educacion.setInstitucion(edu.getInstitucion());
+                educacion.setTitulo(edu.getTitulo());
+                educacion.setHabilidades(edu.getHabilidades());
+                educacion.setLocacion(edu.getLocacion());
+                interEducacion.saveEducacion(educacion);
+                return new ResponseEntity<>(educacion, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("Datos no encontrados para id: "+id), HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     

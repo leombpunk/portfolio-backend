@@ -50,27 +50,12 @@ public class ProyectoService implements IProyectoService {
     }
 
     @Override
-    public byte[] getImage(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public void loadImage(Imagen img, Long id) {
         Proyecto pro = proyectoRepository.getById(id);
         pro.setLogo(img.getFoto_nombre());
         pro.setLogo_public_id(img.getFoto_public_id());
         pro.setLogo_url(img.getFoto_url());
         proyectoRepository.save(pro);
-    }
-
-    @Override
-    public void updateImage(MultipartFile img, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void deleteImage(String img, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     //metodo nuevo para la query personalizada

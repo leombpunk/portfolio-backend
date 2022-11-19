@@ -50,27 +50,12 @@ public class ExperienciaService implements IExperienciaService {
     }
 
     @Override
-    public byte[] getImage(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public void loadImage(Imagen img, Long id) {
         Experiencia expe = expeRepository.getById(id);
         expe.setLogo(img.getFoto_nombre());
         expe.setLogo_public_id(img.getFoto_public_id());
         expe.setLogo_url(img.getFoto_url());
         expeRepository.save(expe);
-    }
-
-    @Override
-    public void updateImage(MultipartFile img, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void deleteImage(String img, Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override

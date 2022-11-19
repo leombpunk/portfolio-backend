@@ -8,19 +8,15 @@ import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.model.Educacion;
 import com.apirest.portfolio.repository.EducacionRepository;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
  * @author PCcito
  */
 @Service
-public class EducacionService implements IEducacionService, IValidarFechaService {
+public class EducacionService implements IEducacionService {
     @Autowired
     private EducacionRepository eduRepository;
     
@@ -64,18 +60,5 @@ public class EducacionService implements IEducacionService, IValidarFechaService
     @Override
     public Boolean existEducacionById(Long id) {
         return eduRepository.existsById(id);
-    }
-
-    @Override
-    public boolean isValidDate(String fecha) {
-        Pattern pattern = Pattern.compile("^(\\d{4}(\\/|-)(0[1-9]|1[0-2])\\2([0-2][0-9]|3[0-1]))$");
-        Matcher match = pattern.matcher(fecha);
-        if (!match.matches()){
-            return false;
-        }
-        else if (!GenericValidator.isDate(fecha, "yyyy-MM-dd", true)){
-            return false;
-        }
-        return true;
     }
 }
