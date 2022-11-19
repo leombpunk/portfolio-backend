@@ -52,5 +52,10 @@ public class HabilidadService implements IHabilidadService {
         List<Habilidad> listaByUsuario = habRepository.listaHabilidadesByUsuario(usuario);
         return listaByUsuario;
     }
+
+    @Override
+    public Boolean existHabilidadById(Long id) {
+        return habRepository.existsById(id);
+    }
     
 }

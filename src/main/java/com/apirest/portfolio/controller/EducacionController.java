@@ -63,16 +63,16 @@ public class EducacionController {
         List<Educacion> listaEducacion = interEducacion.getEducaciones();
         return new ResponseEntity(listaEducacion, HttpStatus.OK);
     }*/
-    
+
+    /**
+     *
+     * @param edu
+     * @return
+     */
     @PostMapping("educacion/crear")
     public ResponseEntity<Educacion> createEducacion(@Valid @RequestBody Educacion edu){
         try {
-            if (!edu.getDesde().isBlank()){
-                if (!fechaService.isValidDate(edu.getDesde())){
-                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo desde, no es una fecha valida"), HttpStatus.BAD_REQUEST);
-                }
-            } 
-            if (!edu.getHasta().isBlank()){
+            if (!edu.getHasta().isBlank()){ //el campo Desde se valida desde el modelo
                 if (!fechaService.isValidDate(edu.getHasta())){
                     return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
                 }
@@ -91,6 +91,11 @@ public class EducacionController {
         }
     }
     
+    /**
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping("educacion/borrar/{id}")
     public ResponseEntity<Educacion> deleteEducacion(@PathVariable Long id){
         try {
@@ -140,6 +145,13 @@ public class EducacionController {
             return new ResponseEntity(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }*/
+
+    /**
+     *
+     * @param id
+     * @param edu
+     * @return
+     */
     @PutMapping("educacion/editar/{id}")
     public ResponseEntity<Educacion> editEducacion(
             @PathVariable Long id,
@@ -147,16 +159,12 @@ public class EducacionController {
         try{
             if(interEducacion.existEducacionById(id)){
                 Educacion educacion = interEducacion.findEducacion(id);
-                if (fechaService.isValidDate(edu.getDesde())){
-                    educacion.setDesde(edu.getDesde());
-                } else {
-                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo desde, no es una fecha valida"), HttpStatus.BAD_REQUEST);
-                }
                 if (fechaService.isValidDate(edu.getHasta())){
                     educacion.setHasta(edu.getHasta());
                 } else {
                     return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
                 }
+                educacion.setDesde(edu.getDesde()); //no hace falta validar porque ya se valida en el modelo
                 educacion.setInstitucion(edu.getInstitucion());
                 educacion.setTitulo(edu.getTitulo());
                 educacion.setHabilidades(edu.getHabilidades());

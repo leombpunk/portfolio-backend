@@ -71,14 +71,16 @@ public class Perfil {
     @Column(name="foto")
     private String foto;
     
-    //nuevos atributos
     @Column(name="foto_url")
     private String foto_url;
     
     @Column(name="foto_public_id")
     private String foto_public_id;
     
-    //hasta aqui
+    @NotNull(message = "El campo Correo no puede ser nulo")
+    @NotBlank(message = "El campo Correo no puede ser vacío")
+    @Size(min=3, max=500, message = "Longitud aceptada de 3 a 50 caractéres")
+    @Pattern(regexp="^[a-zA-Z0-9\\sÁáÉéÍíÓóÚúÑñÜü/.,;:()\"'\\-]+$", message = "Formato invalido para campo Acerca de")
     @Column(name="acercade")
     private String acercade;
     

@@ -158,9 +158,8 @@ public class PerfilController {
             //una vez que el servicio sube la imagen verificar el response
             //y con los pares public_id y format armar el nombre de la imagen
             //verificar el par url
-            //System.out.print(result.get("public_id"));
-            Imagen imagen = new Imagen("perfil_foto_" + id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
-            interPerfil.loadImage(imagen, id);
+            Imagen image = new Imagen("perfil_foto_" + id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
+            interPerfil.loadImage(image, id);
             return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -209,6 +208,11 @@ public class PerfilController {
         }
     }
 
+    /**
+     *
+     * @param usuario
+     * @return
+     */
     @GetMapping("perfil/buscarByUsuario/{usuario}")
     public ResponseEntity<Perfil> buscarByUsuario(@PathVariable("usuario") String usuario) {
         try {

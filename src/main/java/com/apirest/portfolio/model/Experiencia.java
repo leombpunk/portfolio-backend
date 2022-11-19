@@ -9,6 +9,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,28 +25,50 @@ public class Experiencia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    
     @Column(name="cargo")
     private String cargo;
+    
+    
     @Column(name="tareas")
     private String tarea;
+    
+    
     @Column(name="desde")
     private String desde;
+    
+    
     @Column(name="hasta")
     private String hasta;
+    
+    
     @Column(name="logo")
     private String logo;
-    //nuevos atributos
+    
+    
     @Column(name="logo_url")
     private String logo_url;
+    
+    
     @Column(name="logo_public_id")
     private String logo_public_id;
-    //hasta aqui
+    
+    
     @Column(name="empresa")
     private String empresa;
+    
+    
     @Column(name="referenciatel")
     private String reftelef;
+    
+    
     @Column(name="referencianombre")
     private String refnombre;
+    
+    @NotNull(message = "El id de usuario no puede ser nulo")
+    @Max(value=999999999, message = "Longitud maxima sobrepasada")
+    @Positive(message = "El id de usuario debe ser un entero positivo")
     @Column(name="usuarios_id")
     private Long usuarios_id;
 }
