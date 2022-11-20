@@ -99,11 +99,15 @@ public class EducacionController {
     @DeleteMapping("educacion/borrar/{id}")
     public ResponseEntity<Educacion> deleteEducacion(@PathVariable Long id){
         try {
-            Educacion edu = interEducacion.findEducacion(id);
-            interEducacion.deleteEducacion(id);
-            return new ResponseEntity<>(edu, HttpStatus.OK);
+            if (interEducacion.existEducacionById(id)){
+                Educacion edu = interEducacion.findEducacion(id);
+                interEducacion.deleteEducacion(id);
+                return new ResponseEntity<>(edu, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("No se borro nada porque no existe un registro con ese id"), HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -186,6 +190,13 @@ public class EducacionController {
     }*/
     
     //agregado para testeos
+
+    /**
+     *
+     * @param id
+     * @param img
+     * @return
+     */
     @PutMapping ("educacion/agregarImg/{id}")
     public ResponseEntity<Map> saveImagen(
             @PathVariable Long id,
@@ -199,8 +210,8 @@ public class EducacionController {
                 return new ResponseEntity(new Mensaje("El estudio/curso indicado no existe!"), HttpStatus.NOT_FOUND);
             }
             Map result = cloudinaryService.upload(img);
-            Imagen imagen = new Imagen("perfil_educacion_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
-            interEducacion.loadImage(imagen, id);
+            Imagen image = new Imagen("perfil_educacion_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
+            interEducacion.loadImage(image, id);
             return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
         } catch (IOException e){
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -209,6 +220,11 @@ public class EducacionController {
         }
     }
     
+    /**
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping ("educacion/borrarImg/{id}")
     public ResponseEntity<Educacion> deleteImagen(
             @PathVariable Long id //id de registro experiencia
@@ -239,6 +255,11 @@ public class EducacionController {
         }       
     }
     
+    /**
+     *
+     * @param usuario
+     * @return
+     */
     @GetMapping("educacion/buscarByUsuario/{usuario}")
     public ResponseEntity<List<Educacion>> buscarByUsuario(@PathVariable("usuario") String usuario){
         try{

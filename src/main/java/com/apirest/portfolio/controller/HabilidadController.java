@@ -80,7 +80,7 @@ public class HabilidadController {
                 interHabilidad.deleteHabilidad(id);
                 return new ResponseEntity<>(hab, HttpStatus.OK);
             } else {
-                return new ResponseEntity(new Mensaje("No se borro nada porque no existe un registro con ese id"), HttpStatus.OK);
+                return new ResponseEntity(new Mensaje("No se borro nada porque no existe un registro con ese id"), HttpStatus.NOT_FOUND);
             }
         } catch (Exception e){
             return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);

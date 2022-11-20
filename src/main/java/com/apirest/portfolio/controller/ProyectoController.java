@@ -10,11 +10,13 @@ import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Proyecto;
 import com.apirest.portfolio.service.ProyectoService;
 import com.apirest.portfolio.service.ValidarFechaService;
+import com.apirest.portfolio.service.ValidarURLService;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -45,6 +47,9 @@ public class ProyectoController {
     private ValidarFechaService fechaService;
     
     @Autowired
+    private ValidarURLService urlService;
+    
+    @Autowired
     private CloudinaryService cloudinaryService;
     
     @Value("${image.default.proyecto.nombre}")
@@ -56,44 +61,88 @@ public class ProyectoController {
     @Value("${image.default.proyecto.url}")
     private String imagen_url;
     
+    /**
+     *
+     * @return
+     */
     @GetMapping("proyecto/traer")
     public ResponseEntity<List<Proyecto>> getProyectos(){
         try {
             List<Proyecto> pro = interProyecto.getProyectos();
             if (pro.isEmpty()){
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return new ResponseEntity(new Mensaje("No se encontraron registros"), HttpStatus.NO_CONTENT);
             }
             else {
                 return new ResponseEntity<>(pro, HttpStatus.OK);
             }
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
+    /**
+     *
+     * @param pro
+     * @return
+     */
     @PostMapping("proyecto/crear")
-    public ResponseEntity<Proyecto> createProyecto(@RequestBody Proyecto pro){
+    public ResponseEntity<Proyecto> createProyecto(@Valid @RequestBody Proyecto pro){
         try {
-            pro.setLogo("proyecto_foto_default.jpg");
+            //verificar fecha
+            if (!pro.getHasta().isBlank()){
+                if (!fechaService.isValidDate(pro.getHasta())){
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                pro.setHasta(null);
+            }
+            //verificar enlace
+            if (!pro.getEnlace().isBlank()){
+                if (!urlService.isValidURL(pro.getEnlace())){
+                    return new ResponseEntity(new Mensaje("El formato del campo Enlace no es correcto"), HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                pro.setEnlace(null);
+            }
+            //verificar sitio
+            if (!pro.getSitio().isBlank()){
+                if (!urlService.isValidURL(pro.getSitio())){
+                    return new ResponseEntity(new Mensaje("El formato del campo Sitio no es correcto"), HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                pro.setSitio(null);
+            }
+            pro.setLogo(imagen);
+            pro.setLogo_public_id(imagen_public_id);
+            pro.setLogo_url(imagen_url);
             interProyecto.saveProyecto(pro);
-            return new ResponseEntity<>(pro, HttpStatus.OK);
+            return new ResponseEntity<>(pro, HttpStatus.CREATED);
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
+    /**
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping("proyecto/borrar/{id}")
     public ResponseEntity<Proyecto> deleteProyecto(@PathVariable Long id){
         try {
-            Proyecto pro = interProyecto.findProyecto(id);
-            interProyecto.deleteProyecto(id);
-            return new ResponseEntity<>(pro, HttpStatus.OK);
+            if (interProyecto.existProyectoById(id)){
+                Proyecto pro = interProyecto.findProyecto(id);
+                interProyecto.deleteProyecto(id);
+                return new ResponseEntity<>(pro, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("No se borro nada porque no existe un registro con ese id"), HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
-    @PutMapping("proyecto/editar/{id}")
+    /*@PutMapping("proyecto/editar/{id}")
     public ResponseEntity<Proyecto> editProyecto(
             @PathVariable Long id,
             @RequestParam("nombre") String nombre,
@@ -116,16 +165,65 @@ public class ProyectoController {
         } catch (Exception e){
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }*/
+    
+    @PutMapping("proyecto/editar/{id}")
+    public ResponseEntity<Proyecto> editProyecto(
+            @PathVariable Long id,
+            @Valid @RequestBody Proyecto pro){
+        
+        try {
+            if (interProyecto.existProyectoById(id)){
+                Proyecto proyecto = interProyecto.findProyecto(id);
+                if (fechaService.isValidDate(pro.getHasta())){
+                    proyecto.setHasta(pro.getHasta());
+                } else {
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+                //verificar enlace
+                if (!pro.getEnlace().isBlank()){
+                    if (!urlService.isValidURL(pro.getEnlace())){
+                        return new ResponseEntity(new Mensaje("El formato del campo Enlace no es correcto"), HttpStatus.BAD_REQUEST);
+                    }
+                } else {
+                    pro.setEnlace(null);
+                }
+                //verificar sitio
+                if (!pro.getSitio().isBlank()){
+                    if (!urlService.isValidURL(pro.getSitio())){
+                        return new ResponseEntity(new Mensaje("El formato del campo Sitio no es correcto"), HttpStatus.BAD_REQUEST);
+                    }
+                } else {
+                    pro.setSitio(null);
+                }
+                proyecto.setNombre(pro.getNombre());
+                proyecto.setDescripcion(pro.getDescripcion());
+                proyecto.setDesde(pro.getDesde());
+                interProyecto.saveProyecto(proyecto);
+                return new ResponseEntity<>(proyecto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("Datos no encontrados para id: "+id), HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e){
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     //sin usar
-    @GetMapping("proyecto/buscar/{id}")
+    /*@GetMapping("proyecto/buscar/{id}")
     public Proyecto findProyecto(@PathVariable Long id){
         Proyecto pro = interProyecto.findProyecto(id);
         return pro;
-    }
+    }*/
     
     //agregado para testeos
+
+    /**
+     *
+     * @param id
+     * @param img
+     * @return
+     */
     @PutMapping ("proyecto/agregarImg/{id}")
     public ResponseEntity<Map> saveImagen(
             @PathVariable Long id,
@@ -149,11 +247,15 @@ public class ProyectoController {
         }
     }
     
+    /**
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping ("proyecto/borrarImg/{id}")
     public ResponseEntity<Proyecto> deleteImagen(
             @PathVariable Long id //id de registro experiencia
         ){
-        
         try{
             if (interProyecto.existProyectoById(id)){
                 Proyecto pro = interProyecto.findProyecto(id);
@@ -179,20 +281,27 @@ public class ProyectoController {
                 return new ResponseEntity(new Mensaje("Proyecto no encontrado!"), HttpStatus.NOT_FOUND);
             }
         } catch (IOException e){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (Exception e){
-            return new ResponseEntity(new Mensaje("Algo salio mal"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje("Algo salio mal " + e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }     
     }
-    
-    //metodo para traer solo lo referente al usuario solicitado
+
+    /**
+     *
+     * @param usuario
+     * @return
+     */
     @GetMapping("proyecto/buscarByUsuario/{usuario}")
     public ResponseEntity<List<Proyecto>> findProyectoByUsuario(@PathVariable("usuario") String usuario){
         try {
             List<Proyecto> listaProyecto = interProyecto.getProyectosByUsuario(usuario);
-            return new ResponseEntity<List<Proyecto>>(listaProyecto, HttpStatus.OK);
+            if (listaProyecto.isEmpty()){
+                return new ResponseEntity(new Mensaje("Sin proyectos para el usuario: " + usuario), HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(listaProyecto, HttpStatus.OK);
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
