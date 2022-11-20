@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -56,36 +57,60 @@ public class ExperienciaController {
     @Value("${image.default.experiencia.url}")
     private String imagen_url;
     
-    @GetMapping("experiencia/traer")
+    /*@GetMapping("experiencia/traer")
     public List<Experiencia> getExperiencias(){
         return interExperiencia.getExperiencias();
-    }
-    
+    }*/
+
+    /**
+     *
+     * @param expe
+     * @return
+     */
     @PostMapping("experiencia/crear")
     public ResponseEntity<Experiencia> createExperiencia(@RequestBody Experiencia expe){
         try {
+            if (!expe.getHasta().isBlank()){ //el campo Desde se valida desde el modelo
+                if (!fechaService.isValidDate(expe.getHasta())){
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                //si es nulo o vacio, seteo el campo como nulo
+                //lo que quiere decir que la fecha hasta es hasta el presente
+                expe.setHasta(null);
+            }
             expe.setLogo(imagen);
             expe.setLogo_public_id(imagen_public_id);
             expe.setLogo_url(imagen_url);
             interExperiencia.saveExperiencia(expe);
             return new ResponseEntity<>(expe, HttpStatus.OK);
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
+    /**
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping("experiencia/borrar/{id}")
     public ResponseEntity<Experiencia> deleteExperiencia(@PathVariable Long id){
         try{
-            Experiencia expe = interExperiencia.findExperiencia(id);
-            interExperiencia.deleteExperiencia(id);
-            return new ResponseEntity<>(expe, HttpStatus.OK);
+            if (interExperiencia.existExperienciaById(id)){
+                Experiencia expe = interExperiencia.findExperiencia(id);
+                interExperiencia.deleteExperiencia(id);
+                return new ResponseEntity<>(expe, HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity(new Mensaje("No se borro nada porque no existe un registro con ese id"), HttpStatus.NOT_FOUND);
+            }
+            
         } catch (Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
-    @PutMapping("experiencia/editar/{id}")
+    /*@PutMapping("experiencia/editar/{id}")
     public ResponseEntity<Experiencia> editExperiencia(
             @PathVariable Long id,
             @RequestParam("cargo") String cargo,
@@ -115,16 +140,55 @@ public class ExperienciaController {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
         
+    }*/
+
+    /**
+     *
+     * @param id
+     * @param expe
+     * @return
+     */
+    @PutMapping("experiencia/editar/{id}")
+    public ResponseEntity<Experiencia> editExperiencia(
+            @PathVariable Long id,
+            @Valid @RequestBody Experiencia expe){
+        try {
+            if (interExperiencia.existExperienciaById(id)){
+                Experiencia experiencia = interExperiencia.findExperiencia(id);
+                if (fechaService.isValidDate(expe.getHasta())){
+                    experiencia.setHasta(expe.getHasta());
+                } else {
+                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                }
+                experiencia.setCargo(expe.getCargo());
+                experiencia.setTarea(expe.getTarea());
+                experiencia.setDesde(expe.getDesde());
+                experiencia.setEmpresa(expe.getEmpresa());
+                experiencia.setReftelef(expe.getReftelef());
+                experiencia.setRefnombre(expe.getRefnombre());
+                interExperiencia.saveExperiencia(experiencia);
+                return new ResponseEntity<>(experiencia, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("Datos no encontrados para id: "+id), HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e){
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
     //sin usar
-    @GetMapping("experiencia/buscar/{id}")
+    /*@GetMapping("experiencia/buscar/{id}")
     public Experiencia findExperiencia(@PathVariable Long id){
         Experiencia expe = interExperiencia.findExperiencia(id);
         return expe;
-    }
-    
-    //agregado para testeos
+    }*/
+
+    /**
+     *
+     * @param id
+     * @param img
+     * @return
+     */
     @PutMapping ("experiencia/agregarImg/{id}")
     public ResponseEntity<Map> saveImagen(
             @PathVariable Long id,
@@ -138,21 +202,25 @@ public class ExperienciaController {
                 return new ResponseEntity(new Mensaje("La experiencia laboral indicada no existe!"), HttpStatus.NOT_FOUND);
             }
             Map result = cloudinaryService.upload(img);
-            Imagen imagen = new Imagen("perfil_experiencia_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
-            interExperiencia.loadImage(imagen, id);
+            Imagen image = new Imagen("perfil_experiencia_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
+            interExperiencia.loadImage(image, id);
             return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
         } catch (IOException e){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity(new Mensaje("Algo salio mal"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje("Algo salio mal"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
+    /**
+     *
+     * @param id
+     * @return
+     */
     @DeleteMapping ("experiencia/borrarImg/{id}")
     public ResponseEntity<Experiencia> deleteImagen(
             @PathVariable("id") Long id //id de registro experiencia
         ){
-        
         try{
             if (interExperiencia.existExperienciaById(id)){
                 Experiencia expe = interExperiencia.findExperiencia(id);
@@ -178,19 +246,24 @@ public class ExperienciaController {
                 return new ResponseEntity(new Mensaje("Experiencia laboral no encontrada!"), HttpStatus.NOT_FOUND);
             }
         } catch (IOException e){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.NOT_FOUND);
         } catch (Exception e){
-            return new ResponseEntity(new Mensaje("Algo salio mal "+e.getMessage()), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new Mensaje("Algo salio mal "+e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }     
     }
     
+    /**
+     *
+     * @param usuario
+     * @return
+     */
     @GetMapping("experiencia/buscarByUsuario/{usuario}")
     public ResponseEntity<List<Experiencia>> bucarByUsuario(@PathVariable("usuario") String usuario){
         try {
             List<Experiencia> listaExperiencia = interExperiencia.getExperienciaByUsuario(usuario);
-            return new ResponseEntity<List<Experiencia>>(listaExperiencia, HttpStatus.OK);
+            return new ResponseEntity<>(listaExperiencia, HttpStatus.OK);
         } catch(Exception e){
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
