@@ -30,30 +30,30 @@ public class Habilidad {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotNull(message = "El campo Descripcion no puede ser nulo")
-    @NotBlank(message = "El campo Descripcion no puede ser vacío")
-    @Size(min=2, max=50, message = "Longitud aceptada de 2 a 50 caractéres")
-    @Pattern(regexp="^[a-zA-Z\\sÁáÉéÍíÓóÚúÑñÜü]+$", message = "Formato invalido para el campo Descripcion")
+//    @NotNull(message = "El campo Descripcion no puede ser nulo")
+//    @NotBlank(message = "El campo Descripcion no puede ser vacío")
+//    @Size(min=2, max=50, message = "Longitud aceptada de 2 a 50 caractéres")
+//    @Pattern(regexp="^[a-zA-Z\\sÁáÉéÍíÓóÚúÑñÜü]+$", message = "Formato invalido para el campo Descripcion")
     @Column(name="descripcion")
     private String descripcion;
     
-    @NotNull(message = "El id de usuario no puede ser nulo")
-    @Min(value=1, message = "Valor minimo 1")
-    @Max(value=10, message = "Valor maximo 10")
-    @Positive(message = "El nivel es incorrecto, debe ser entero positivo")
+//    @NotNull(message = "El id de usuario no puede ser nulo")
+//    @Min(value=1, message = "Valor minimo 1")
+//    @Max(value=10, message = "Valor maximo 10")
+//    @Positive(message = "El nivel es incorrecto, debe ser entero positivo")
     @Column(name="nivel")
     private int nivel;
     
-    @NotNull(message = "El id de usuario no puede ser nulo")
-    @Max(value=999999999, message = "Longitud maxima sobrepasada")
-    @Positive(message = "El id de usuario debe ser un entero positivo")
+//    @NotNull(message = "El id de usuario no puede ser nulo")
+//    @Max(value=999999999, message = "Longitud maxima sobrepasada")
+//    @Positive(message = "El id de usuario debe ser un entero positivo")
     @Column(name="usuarios_id")
     private Long usuarios_id;
     
-    @NotNull(message = "El id de usuario no puede ser nulo")
-    @Min(value=1, message = "Valor minimo 1")
-    @Max(value=99, message = "Valor maximo 99")
-    @Positive(message = "El tipo de habilidad es incorrecto")
+//    @NotNull(message = "El id de usuario no puede ser nulo")
+//    @Min(value=1, message = "Valor minimo 1")
+//    @Max(value=99, message = "Valor maximo 99")
+//    @Positive(message = "El tipo de habilidad es incorrecto")
     @Column(name="tipo_habilidad_id")
     private Long tipo_habilidad_id;
 }

@@ -5,6 +5,7 @@
 package com.apirest.portfolio.controller;
 
 import com.apirest.portfolio.cloudinary.service.CloudinaryService;
+import com.apirest.portfolio.dto.EducacionDto;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Educacion;
@@ -70,7 +71,7 @@ public class EducacionController {
      * @return
      */
     @PostMapping("educacion/crear")
-    public ResponseEntity<Educacion> createEducacion(@Valid @RequestBody Educacion edu){
+    public ResponseEntity<EducacionDto> createEducacion(@Valid @RequestBody EducacionDto edu){
         try {
             if (!edu.getHasta().isBlank()){ //el campo Desde se valida desde el modelo
                 if (!fechaService.isValidDate(edu.getHasta())){
@@ -84,10 +85,24 @@ public class EducacionController {
             edu.setLogo(imagen);
             edu.setLogo_public_id(imagen_public_id);
             edu.setLogo_url(imagen_url);
-            interEducacion.saveEducacion(edu);
+            
+            //una vez validados los datos los paso al modelo y proceso a guardarlos
+            Educacion educacion = new Educacion();
+            educacion.setInstitucion(edu.getInstitucion());
+            educacion.setLocacion(edu.getLocacion());
+            educacion.setHabilidades(edu.getHabilidades());
+            educacion.setLogo(edu.getLogo());
+            educacion.setLogo_url(edu.getLogo_url());
+            educacion.setLogo_public_id(edu.getLogo_public_id());
+            educacion.setTitulo(edu.getTitulo());
+            educacion.setDesde(edu.getDesde());
+            educacion.setHasta(edu.getHasta());
+            educacion.setUsuarios_id(edu.getUsuarios_id());
+            
+            interEducacion.saveEducacion(educacion);
             return new ResponseEntity<>(edu, HttpStatus.CREATED);
         } catch (Exception e){
-            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new Mensaje("Ocurrió un error inesperado! "+e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -159,14 +174,18 @@ public class EducacionController {
     @PutMapping("educacion/editar/{id}")
     public ResponseEntity<Educacion> editEducacion(
             @PathVariable Long id,
-            @Valid @RequestBody Educacion edu){
+            @Valid @RequestBody EducacionDto edu){
         try{
             if(interEducacion.existEducacionById(id)){
                 Educacion educacion = interEducacion.findEducacion(id);
-                if (fechaService.isValidDate(edu.getHasta())){
+                if (!edu.getHasta().isBlank()){
+                    if (fechaService.isValidDate(edu.getHasta())){
                     educacion.setHasta(edu.getHasta());
+                    } else {
+                        return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                    }
                 } else {
-                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                    edu.setHasta(null);
                 }
                 educacion.setDesde(edu.getDesde()); //no hace falta validar porque ya se valida en el modelo
                 educacion.setInstitucion(edu.getInstitucion());
@@ -188,8 +207,6 @@ public class EducacionController {
     public Educacion findEducacion(@PathVariable Long id){
         return interEducacion.findEducacion(id);
     }*/
-    
-    //agregado para testeos
 
     /**
      *
@@ -227,7 +244,7 @@ public class EducacionController {
      */
     @DeleteMapping ("educacion/borrarImg/{id}")
     public ResponseEntity<Educacion> deleteImagen(
-            @PathVariable Long id //id de registro experiencia
+            @PathVariable Long id //id de registro educacion
         ){
         try{
             if (interEducacion.existEducacionById(id)){
