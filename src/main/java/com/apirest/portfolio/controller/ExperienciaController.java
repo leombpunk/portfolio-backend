@@ -5,9 +5,11 @@
 package com.apirest.portfolio.controller;
 
 import com.apirest.portfolio.cloudinary.service.CloudinaryService;
+import com.apirest.portfolio.dto.ExperienciaDto;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Experiencia;
+import com.apirest.portfolio.security.service.UsuarioService;
 import com.apirest.portfolio.service.ExperienciaService;
 import com.apirest.portfolio.service.ValidarFechaService;
 import java.awt.image.BufferedImage;
@@ -48,6 +50,9 @@ public class ExperienciaController {
     @Autowired
     private CloudinaryService cloudinaryService;
     
+    @Autowired
+    private UsuarioService usuarioService;
+    
     @Value("${image.default.experiencia.nombre}")
     private String imagen;
     
@@ -68,7 +73,7 @@ public class ExperienciaController {
      * @return
      */
     @PostMapping("experiencia/crear")
-    public ResponseEntity<Experiencia> createExperiencia(@RequestBody Experiencia expe){
+    public ResponseEntity<Experiencia> createExperiencia(@RequestBody ExperienciaDto expe){
         try {
             if (!expe.getHasta().isBlank()){ //el campo Desde se valida desde el modelo
                 if (!fechaService.isValidDate(expe.getHasta())){
@@ -79,11 +84,21 @@ public class ExperienciaController {
                 //lo que quiere decir que la fecha hasta es hasta el presente
                 expe.setHasta(null);
             }
-            expe.setLogo(imagen);
-            expe.setLogo_public_id(imagen_public_id);
-            expe.setLogo_url(imagen_url);
-            interExperiencia.saveExperiencia(expe);
-            return new ResponseEntity<>(expe, HttpStatus.OK);
+            
+            Experiencia experiencia = new Experiencia();
+            experiencia.setCargo(expe.getCargo());
+            experiencia.setTarea(expe.getTarea());
+            experiencia.setDesde(expe.getDesde());
+            experiencia.setHasta(expe.getHasta());
+            experiencia.setEmpresa(expe.getEmpresa());
+            experiencia.setReftelef(expe.getReftelef());
+            experiencia.setRefnombre(expe.getRefnombre());
+            experiencia.setLogo(imagen);
+            experiencia.setLogo_url(imagen_url);
+            experiencia.setLogo_public_id(imagen_public_id);
+            experiencia.setUsuarios_id(expe.getUsuarios_id());
+            interExperiencia.saveExperiencia(experiencia);
+            return new ResponseEntity<>(experiencia, HttpStatus.CREATED);
         } catch (Exception e){
             return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -151,14 +166,18 @@ public class ExperienciaController {
     @PutMapping("experiencia/editar/{id}")
     public ResponseEntity<Experiencia> editExperiencia(
             @PathVariable Long id,
-            @Valid @RequestBody Experiencia expe){
+            @Valid @RequestBody ExperienciaDto expe){
         try {
             if (interExperiencia.existExperienciaById(id)){
                 Experiencia experiencia = interExperiencia.findExperiencia(id);
-                if (fechaService.isValidDate(expe.getHasta())){
-                    experiencia.setHasta(expe.getHasta());
+                if (!expe.getHasta().isBlank()){
+                    if (fechaService.isValidDate(expe.getHasta())){
+                        experiencia.setHasta(expe.getHasta());
+                    } else {
+                        return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                    }
                 } else {
-                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                    expe.setHasta(null);
                 }
                 experiencia.setCargo(expe.getCargo());
                 experiencia.setTarea(expe.getTarea());
@@ -260,8 +279,12 @@ public class ExperienciaController {
     @GetMapping("experiencia/buscarByUsuario/{usuario}")
     public ResponseEntity<List<Experiencia>> bucarByUsuario(@PathVariable("usuario") String usuario){
         try {
-            List<Experiencia> listaExperiencia = interExperiencia.getExperienciaByUsuario(usuario);
-            return new ResponseEntity<>(listaExperiencia, HttpStatus.OK);
+            if (usuarioService.existsByUsuario(usuario)){
+                List<Experiencia> listaExperiencia = interExperiencia.getExperienciaByUsuario(usuario);
+                return new ResponseEntity<>(listaExperiencia, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("Usuario no encontrado ("+usuario+")"), HttpStatus.NOT_FOUND);
+            }
         } catch(Exception e){
             return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }

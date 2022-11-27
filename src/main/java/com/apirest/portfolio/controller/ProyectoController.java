@@ -7,7 +7,9 @@ package com.apirest.portfolio.controller;
 import com.apirest.portfolio.cloudinary.service.CloudinaryService;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.dto.Mensaje;
+import com.apirest.portfolio.dto.ProyectoDto;
 import com.apirest.portfolio.model.Proyecto;
+import com.apirest.portfolio.security.service.UsuarioService;
 import com.apirest.portfolio.service.ProyectoService;
 import com.apirest.portfolio.service.ValidarFechaService;
 import com.apirest.portfolio.service.ValidarURLService;
@@ -52,6 +54,9 @@ public class ProyectoController {
     @Autowired
     private CloudinaryService cloudinaryService;
     
+    @Autowired
+    private UsuarioService usuarioService;
+    
     @Value("${image.default.proyecto.nombre}")
     private String imagen;
     
@@ -86,7 +91,7 @@ public class ProyectoController {
      * @return
      */
     @PostMapping("proyecto/crear")
-    public ResponseEntity<Proyecto> createProyecto(@Valid @RequestBody Proyecto pro){
+    public ResponseEntity<Proyecto> createProyecto(@Valid @RequestBody ProyectoDto pro){
         try {
             //verificar fecha
             if (!pro.getHasta().isBlank()){
@@ -112,11 +117,20 @@ public class ProyectoController {
             } else {
                 pro.setSitio(null);
             }
-            pro.setLogo(imagen);
-            pro.setLogo_public_id(imagen_public_id);
-            pro.setLogo_url(imagen_url);
-            interProyecto.saveProyecto(pro);
-            return new ResponseEntity<>(pro, HttpStatus.CREATED);
+            
+            Proyecto proyecto = new Proyecto();
+            proyecto.setDescripcion(pro.getDescripcion());
+            proyecto.setDesde(pro.getDesde());
+            proyecto.setHasta(pro.getHasta());
+            proyecto.setEnlace(pro.getEnlace());
+            proyecto.setSitio(pro.getSitio());
+            proyecto.setNombre(pro.getNombre());
+            proyecto.setUsuarios_id(pro.getUsuarios_id());
+            proyecto.setLogo(imagen);
+            proyecto.setLogo_public_id(imagen_public_id);
+            proyecto.setLogo_url(imagen_url);
+            interProyecto.saveProyecto(proyecto);
+            return new ResponseEntity<>(proyecto, HttpStatus.CREATED);
         } catch (Exception e){
             return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -170,7 +184,7 @@ public class ProyectoController {
     @PutMapping("proyecto/editar/{id}")
     public ResponseEntity<Proyecto> editProyecto(
             @PathVariable Long id,
-            @Valid @RequestBody Proyecto pro){
+            @Valid @RequestBody ProyectoDto pro){
         
         try {
             if (interProyecto.existProyectoById(id)){
@@ -295,11 +309,13 @@ public class ProyectoController {
     @GetMapping("proyecto/buscarByUsuario/{usuario}")
     public ResponseEntity<List<Proyecto>> findProyectoByUsuario(@PathVariable("usuario") String usuario){
         try {
-            List<Proyecto> listaProyecto = interProyecto.getProyectosByUsuario(usuario);
-            if (listaProyecto.isEmpty()){
-                return new ResponseEntity(new Mensaje("Sin proyectos para el usuario: " + usuario), HttpStatus.NOT_FOUND);
+            if (usuarioService.existsByUsuario(usuario)){
+                List<Proyecto> listaProyecto = interProyecto.getProyectosByUsuario(usuario);
+                return new ResponseEntity<>(listaProyecto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("Usuario no encontrado ("+usuario+")"), HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(listaProyecto, HttpStatus.OK);
+            
         } catch (Exception e){
             return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }

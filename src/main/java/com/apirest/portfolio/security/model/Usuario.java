@@ -39,7 +39,7 @@ public class Usuario {
     private String usuario;
     
     @NotBlank(message = "La contraseña no puede ser vacia")
-    @Size(min=8, max=16, message = "Entre 8 a 16 caracteres de lonqitud")
+    @Size(min=8, max=255, message = "Entre 8 a 16 caracteres de lonqitud")
     @Column(name="contrasena")
     private String contrasena;
     

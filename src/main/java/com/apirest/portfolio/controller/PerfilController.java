@@ -7,7 +7,9 @@ package com.apirest.portfolio.controller;
 import com.apirest.portfolio.cloudinary.service.CloudinaryService;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.dto.Mensaje;
+import com.apirest.portfolio.dto.PerfilDto;
 import com.apirest.portfolio.model.Perfil;
+import com.apirest.portfolio.security.service.UsuarioService;
 import com.apirest.portfolio.service.PerfilService;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -23,7 +25,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+//import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +46,9 @@ public class PerfilController {
     //injectar el servicio de cloudinary creado
     @Autowired
     private CloudinaryService cloudinaryService;
+    
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Value("${image.default.perfil.nombre}")
     private String imagen;
@@ -109,7 +114,7 @@ public class PerfilController {
     @PutMapping("perfil/editar/{id}")
     public ResponseEntity<Perfil> editPerfil(
             @PathVariable("id") Long id,
-            @Valid @RequestBody Perfil perf
+            @Valid @RequestBody PerfilDto perf
     ) {
         try {
             //verificar que los campos sean correctos, si git o linkedin son vacios jpa lanza una excepcion
@@ -216,8 +221,8 @@ public class PerfilController {
     @GetMapping("perfil/buscarByUsuario/{usuario}")
     public ResponseEntity<Perfil> buscarByUsuario(@PathVariable("usuario") String usuario) {
         try {
-            Perfil perfil = interPerfil.buscarPerilByUsuario(usuario);
-            if (perfil.getId() > 0){
+            if (usuarioService.existsByUsuario(usuario)){
+                Perfil perfil = interPerfil.buscarPerilByUsuario(usuario);
                 return new ResponseEntity<>(perfil, HttpStatus.OK);
             } else {
                 return new ResponseEntity(new Mensaje("Usuario no encontrado"), HttpStatus.NOT_FOUND);

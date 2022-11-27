@@ -5,6 +5,7 @@
 package com.apirest.portfolio.security.controller;
 
 import com.apirest.portfolio.dto.Mensaje;
+import com.apirest.portfolio.model.Perfil;
 import com.apirest.portfolio.security.dto.JwtDto;
 import com.apirest.portfolio.security.dto.LoginUsuario;
 import com.apirest.portfolio.security.dto.NuevoUsuario;
@@ -14,11 +15,13 @@ import com.apirest.portfolio.security.model.Rol;
 import com.apirest.portfolio.security.model.Usuario;
 import com.apirest.portfolio.security.service.RolService;
 import com.apirest.portfolio.security.service.UsuarioService;
+import com.apirest.portfolio.service.PerfilService;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -61,10 +64,24 @@ public class AuthController {
     @Autowired
     JwtProvider jwtProvider;
     
+    //AGREGADO
+    @Autowired 
+    PerfilService perfilService;
+    
+    @Value("${image.default.perfil.nombre}")
+    private String imagen;
+
+    @Value("${image.default.perfil.public.id}")
+    private String imagen_public_id;
+
+    @Value("${image.default.perfil.url}")
+    private String imagen_url;
+    //FIN
+    
     @PostMapping("/nuevoUsuario")
     public ResponseEntity<?> nuevoUsuario(@Valid @RequestBody NuevoUsuario nuevoUsuario, BindingResult bindingResult){
         if (bindingResult.hasErrors()){
-            return new ResponseEntity("Los campos estan mal puestos.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(bindingResult.getFieldErrors(), HttpStatus.BAD_REQUEST);
         }
         if (usuarioService.existsByUsuario(nuevoUsuario.getUsuario())){
             return new ResponseEntity("El nombre de usuario ya existe.", HttpStatus.BAD_REQUEST);
@@ -77,7 +94,27 @@ public class AuthController {
         }
         usu.setRoles(roles);
         usuarioService.saveUsuario(usu);
-        return new ResponseEntity(new Mensaje("Usuario guardado."), HttpStatus.CREATED);
+        
+        //AGREGADO
+        //ya que en clever cloud no puedo usar triggers en la db lo hago a manopla aquí
+        Perfil perfil = new Perfil();
+        perfil.setNombre("Inserte su nombre");
+        perfil.setApellido("Inserte su apellido");
+        perfil.setAcercade("Escriba algo sobre usted");
+        perfil.setCorreo("Inserte su correo");
+        perfil.setGithub("Inserte su GitHub");
+        perfil.setLinkedin("Inserte su LinkedIn");
+        perfil.setTitulo("Inserte su título");
+        perfil.setFoto(imagen);
+        perfil.setFoto_url(imagen_url);
+        perfil.setFoto_public_id(imagen_public_id);
+        //busco el id del usuario "recien creado"
+        Optional<Usuario> usuario = usuarioService.getByUsuario(usu.getUsuario());
+        perfil.setUsuarios_id(usuario.get().getId());//no lo tengo
+        perfilService.savePerfil(perfil);
+        //FIN 
+        
+        return new ResponseEntity(new Mensaje("Usuario creado."), HttpStatus.CREATED);
     }
     
     

@@ -4,8 +4,10 @@
  */
 package com.apirest.portfolio.controller;
 
+import com.apirest.portfolio.dto.HabilidadDto;
 import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Habilidad;
+import com.apirest.portfolio.security.service.UsuarioService;
 import com.apirest.portfolio.service.IHabilidadService;
 import java.util.List;
 import javax.validation.Valid;
@@ -19,7 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+//import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -33,24 +35,27 @@ public class HabilidadController {
     @Autowired
     private IHabilidadService interHabilidad;
     
+    @Autowired 
+    private UsuarioService usuarioService;
+    
     /**
      *
      * @return
      */
-    @GetMapping("habilidad/traer")
-    public ResponseEntity<List<Habilidad>> getHabilidades(){
-        try {
-            List<Habilidad> hab = interHabilidad.getHabilidades();
-            if (hab.isEmpty()){
-                return new ResponseEntity(new Mensaje("No hay habilidades"), HttpStatus.NO_CONTENT);
-            }
-            else {
-                return new ResponseEntity<>(hab, HttpStatus.OK);
-            }
-        } catch (Exception e){
-            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("habilidad/traer")
+//    public ResponseEntity<List<Habilidad>> getHabilidades(){
+//        try {
+//            List<Habilidad> hab = interHabilidad.getHabilidades();
+//            if (hab.isEmpty()){
+//                return new ResponseEntity(new Mensaje("No hay habilidades"), HttpStatus.NO_CONTENT);
+//            }
+//            else {
+//                return new ResponseEntity<>(hab, HttpStatus.OK);
+//            }
+//        } catch (Exception e){
+//            return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
     
     /**
      *
@@ -58,10 +63,15 @@ public class HabilidadController {
      * @return
      */
     @PostMapping("habilidad/crear")
-    public ResponseEntity<Habilidad> createHabilidad(@Valid @RequestBody Habilidad hab){
+    public ResponseEntity<Habilidad> createHabilidad(@Valid @RequestBody HabilidadDto hab){
         try {
-            interHabilidad.saveHabilidad(hab);
-            return new ResponseEntity<>(hab, HttpStatus.OK);
+            Habilidad habilidad = new Habilidad();
+            habilidad.setDescripcion(hab.getDescripcion());
+            habilidad.setNivel(hab.getNivel());
+            habilidad.setTipo_habilidad_id(hab.getTipo_habilidad_id());
+            habilidad.setUsuarios_id(hab.getUsuarios_id());
+            interHabilidad.saveHabilidad(habilidad);
+            return new ResponseEntity<>(habilidad, HttpStatus.CREATED);
         } catch (Exception e){
             return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -114,7 +124,7 @@ public class HabilidadController {
     @PutMapping("habilidad/editar/{id}")
     public ResponseEntity<Habilidad> editHabilidad(
             @PathVariable Long id,
-            @Valid @RequestBody Habilidad hab){
+            @Valid @RequestBody HabilidadDto hab){
         try {
             if (interHabilidad.existHabilidadById(id)){
                 Habilidad habilidad = interHabilidad.findHabilidad(id);
@@ -146,11 +156,11 @@ public class HabilidadController {
     @GetMapping("habilidad/buscarByUsuario/{usuario}")
     public ResponseEntity<List<Habilidad>> bucarByUsuario(@PathVariable("usuario") String usuario){
         try{
-            List<Habilidad> listaHabilidad = interHabilidad.getHabilidadesByUsuario(usuario);
-            if (listaHabilidad.isEmpty()){
-                return new ResponseEntity(new Mensaje("No hay registros para el usuario: " + usuario), HttpStatus.NOT_FOUND);
-            } else {
+            if (usuarioService.existsByUsuario(usuario)){
+                List<Habilidad> listaHabilidad = interHabilidad.getHabilidadesByUsuario(usuario);   
                 return new ResponseEntity<>(listaHabilidad, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("Usuario no encontrado ("+usuario+")"), HttpStatus.NOT_FOUND);
             }
         } catch (Exception e){
             return new ResponseEntity(new Mensaje(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);

@@ -9,6 +9,7 @@ import com.apirest.portfolio.dto.EducacionDto;
 import com.apirest.portfolio.dto.Imagen;
 import com.apirest.portfolio.dto.Mensaje;
 import com.apirest.portfolio.model.Educacion;
+import com.apirest.portfolio.security.service.UsuarioService;
 import com.apirest.portfolio.service.EducacionService;
 import com.apirest.portfolio.service.ValidarFechaService;
 import java.awt.image.BufferedImage;
@@ -49,6 +50,9 @@ public class EducacionController {
     @Autowired
     private CloudinaryService cloudinaryService;
     
+    @Autowired
+    private UsuarioService usuarioService;
+    
     @Value("${image.default.educacion.nombre}")
     private String imagen;
     
@@ -71,7 +75,7 @@ public class EducacionController {
      * @return
      */
     @PostMapping("educacion/crear")
-    public ResponseEntity<EducacionDto> createEducacion(@Valid @RequestBody EducacionDto edu){
+    public ResponseEntity<Educacion> createEducacion(@Valid @RequestBody EducacionDto edu){
         try {
             if (!edu.getHasta().isBlank()){ //el campo Desde se valida desde el modelo
                 if (!fechaService.isValidDate(edu.getHasta())){
@@ -81,26 +85,21 @@ public class EducacionController {
                 //si es nulo o vacio, seteo el campo como nulo
                 //lo que quiere decir que la fecha hasta es hasta el presente
                 edu.setHasta(null);
-            }
-            edu.setLogo(imagen);
-            edu.setLogo_public_id(imagen_public_id);
-            edu.setLogo_url(imagen_url);
-            
+            }       
             //una vez validados los datos los paso al modelo y proceso a guardarlos
             Educacion educacion = new Educacion();
             educacion.setInstitucion(edu.getInstitucion());
             educacion.setLocacion(edu.getLocacion());
             educacion.setHabilidades(edu.getHabilidades());
-            educacion.setLogo(edu.getLogo());
-            educacion.setLogo_url(edu.getLogo_url());
-            educacion.setLogo_public_id(edu.getLogo_public_id());
+            educacion.setLogo(imagen);
+            educacion.setLogo_url(imagen_url);
+            educacion.setLogo_public_id(imagen_public_id);
             educacion.setTitulo(edu.getTitulo());
             educacion.setDesde(edu.getDesde());
             educacion.setHasta(edu.getHasta());
             educacion.setUsuarios_id(edu.getUsuarios_id());
-            
             interEducacion.saveEducacion(educacion);
-            return new ResponseEntity<>(edu, HttpStatus.CREATED);
+            return new ResponseEntity<>(educacion, HttpStatus.CREATED);
         } catch (Exception e){
             return new ResponseEntity(new Mensaje("Ocurrió un error inesperado! "+e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -280,11 +279,13 @@ public class EducacionController {
     @GetMapping("educacion/buscarByUsuario/{usuario}")
     public ResponseEntity<List<Educacion>> buscarByUsuario(@PathVariable("usuario") String usuario){
         try{
-            List<Educacion> listaEducacion = interEducacion.getEducacionByUsuario(usuario);
-            if (listaEducacion.isEmpty()){
-                return new ResponseEntity(new Mensaje("Sin estudios/cursos para el usuario: " + usuario), HttpStatus.NOT_FOUND);
+            if (usuarioService.existsByUsuario(usuario)){
+                List<Educacion> listaEducacion = interEducacion.getEducacionByUsuario(usuario);
+                return new ResponseEntity<>(listaEducacion, HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new Mensaje("Usuario no encontrado ("+usuario+")"), HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(listaEducacion, HttpStatus.OK);
+            
         }catch(Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
