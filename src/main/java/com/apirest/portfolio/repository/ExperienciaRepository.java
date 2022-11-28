@@ -17,6 +17,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ExperienciaRepository extends JpaRepository<Experiencia, Long> {
-    @Query("SELECT e FROM experiencias e INNER JOIN usuarios u ON e.usuarios_id = u.id AND u.usuario = :usuario")
+    @Query("SELECT e FROM experiencias e INNER JOIN usuarios u ON e.usuarios_id = u.id AND u.usuario = :usuario ORDER BY e.desde DESC")
     List<Experiencia> listaExperienciaByUsuario(@Param("usuario") String usuario);
 }

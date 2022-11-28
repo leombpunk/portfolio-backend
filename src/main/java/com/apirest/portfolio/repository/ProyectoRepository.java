@@ -17,6 +17,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ProyectoRepository extends JpaRepository<Proyecto, Long> {
-    @Query("SELECT p FROM proyectos p INNER JOIN usuarios u ON p.usuarios_id = u.id AND u.usuario = :usuario")
+    @Query("SELECT p FROM proyectos p INNER JOIN usuarios u ON p.usuarios_id = u.id AND u.usuario = :usuario ORDER BY p.desde DESC")
     List<Proyecto> listaProyectosByUsuario(@Param("usuario") String usuario);
 }

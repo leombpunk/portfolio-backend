@@ -17,6 +17,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface EducacionRepository extends JpaRepository<Educacion, Long> {
-    @Query("SELECT e FROM educacion e INNER JOIN usuarios u ON e.usuarios_id = u.id AND u.usuario = :usuario")
+    @Query("SELECT e FROM educacion e INNER JOIN usuarios u ON e.usuarios_id = u.id AND u.usuario = :usuario ORDER BY e.desde DESC")
     List<Educacion> listaEducacionByUsuario(@Param("usuario") String usuario);
 }
