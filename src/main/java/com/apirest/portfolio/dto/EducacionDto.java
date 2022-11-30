@@ -32,7 +32,7 @@ public class EducacionDto {
     @NotNull(message = "El campo Habilidades no puede ser nulo")
     @NotBlank(message = "El campo Habilidades no puede ser vacío")
     @Size(min=5, max=500, message = "Longitud aceptada de 5 a 500 caractéres")
-    @Pattern(regexp="^[a-zA-Z0-9\\sÁáÉéÍíÓóÚúÑñÜü/.,;:()\"'\\-]+$", message = "Formato invalido para el campo Habilidades")
+    @Pattern(regexp="^[a-zA-Z0-9\\sÁáÉéÍíÓóÚúÑñÜü/.,;:()\"'\\-¿?!¡]+$", message = "Formato invalido para el campo Habilidades")
     private String habilidades;
     
     //los campos relacionados con logo a mi parecer no necesitarian validarse

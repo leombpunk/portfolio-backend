@@ -27,7 +27,7 @@ public class ExperienciaDto {
     @NotNull(message = "El campo Tareas no puede ser nulo")
     @NotBlank(message = "El campo Tareas no puede ser vacío")
     @Size(min=5, max=500, message = "Longitud aceptada de 5 a 500 caractéres")
-    @Pattern(regexp="^[a-zA-Z0-9\\sÁáÉéÍíÓóÚúÑñÜü/.,;:()\"'\\-]+$", message = "Formato invalido para el campo Tareas")
+    @Pattern(regexp="^[a-zA-Z0-9\\sÁáÉéÍíÓóÚúÑñÜü/.,;:()\"'\\-¿?!¡]+$", message = "Formato invalido para el campo Tareas")
     @Column(name="tareas")
     private String tarea;
     

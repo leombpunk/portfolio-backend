@@ -50,7 +50,7 @@ public class ProyectoDto {
     @NotNull(message = "El campo Descripcion no puede ser nulo")
     @NotBlank(message = "El campo Descripcion no puede ser vacío")
     @Size(min=5, max=500, message = "Longitud aceptada de 5 a 500 caractéres")
-    @Pattern(regexp="^[a-zA-Z0-9\\sÁáÉéÍíÓóÚúÑñÜü/.,;:()\"'\\-]+$", message = "Formato invalido para el campo Descripcion")
+    @Pattern(regexp="^[a-zA-Z0-9\\sÁáÉéÍíÓóÚúÑñÜü/.,;:()\"'\\-¿?!¡]+$", message = "Formato invalido para el campo Descripcion")
     @Column(name="descripcion")
     private String descripcion;
     
