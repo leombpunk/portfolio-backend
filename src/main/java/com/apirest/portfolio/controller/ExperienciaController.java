@@ -170,11 +170,15 @@ public class ExperienciaController {
         try {
             if (interExperiencia.existExperienciaById(id)){
                 Experiencia experiencia = interExperiencia.findExperiencia(id);
-                if (!expe.getHasta().isBlank()){
-                    if (fechaService.isValidDate(expe.getHasta())){
-                        experiencia.setHasta(expe.getHasta());
+                if (expe.getHasta() != null){
+                    if (!expe.getHasta().isBlank()){
+                        if (fechaService.isValidDate(expe.getHasta())){
+                            experiencia.setHasta(expe.getHasta());
+                        } else {
+                            return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                        }
                     } else {
-                        return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                        expe.setHasta(null);
                     }
                 } else {
                     expe.setHasta(null);

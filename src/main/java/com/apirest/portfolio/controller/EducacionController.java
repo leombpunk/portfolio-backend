@@ -177,11 +177,16 @@ public class EducacionController {
         try{
             if(interEducacion.existEducacionById(id)){
                 Educacion educacion = interEducacion.findEducacion(id);
-                if (!edu.getHasta().isBlank()){
-                    if (fechaService.isValidDate(edu.getHasta())){
-                    educacion.setHasta(edu.getHasta());
+                //si no es nulo o es distinto de blanco
+                if (edu.getHasta() != null){
+                    if (!edu.getHasta().isBlank()){
+                        if (fechaService.isValidDate(edu.getHasta())){
+                        educacion.setHasta(edu.getHasta());
+                        } else {
+                            return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                        }
                     } else {
-                        return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                        edu.setHasta(null);
                     }
                 } else {
                     edu.setHasta(null);

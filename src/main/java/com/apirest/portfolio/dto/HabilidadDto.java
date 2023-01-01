@@ -21,7 +21,7 @@ public class HabilidadDto {
     @NotNull(message = "El campo Descripcion no puede ser nulo")
     @NotBlank(message = "El campo Descripcion no puede ser vacío")
     @Size(min=2, max=50, message = "Longitud aceptada de 2 a 50 caractéres")
-    @Pattern(regexp="^[a-zA-Z\\sÁáÉéÍíÓóÚúÑñÜü]+$", message = "Formato invalido para el campo Descripcion")
+    @Pattern(regexp="^[a-zA-Z\\sÁáÉéÍíÓóÚúÑñÜü]+$", message = "Formato invalido para el campo Descripcion") //agregar 0-9 al pattern
     @Column(name="descripcion")
     private String descripcion;
     

@@ -185,15 +185,23 @@ public class ProyectoController {
     public ResponseEntity<Proyecto> editProyecto(
             @PathVariable Long id,
             @Valid @RequestBody ProyectoDto pro){
-        
         try {
             if (interProyecto.existProyectoById(id)){
                 Proyecto proyecto = interProyecto.findProyecto(id);
-                if (fechaService.isValidDate(pro.getHasta())){
-                    proyecto.setHasta(pro.getHasta());
+                if (pro.getHasta() != null){
+                    if (!pro.getHasta().isBlank()){
+                        if (fechaService.isValidDate(pro.getHasta())){
+                            proyecto.setHasta(pro.getHasta());
+                        } else {
+                            return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                        }
+                    } else {
+                        pro.setHasta(null);
+                    }
                 } else {
-                    return new ResponseEntity(new Mensaje("Datos incorrectos, verifique el campo hasta, no es una fecha valida"), HttpStatus.BAD_REQUEST);
+                    pro.setHasta(null);
                 }
+                
                 //verificar enlace
                 if (!pro.getEnlace().isBlank()){
                     if (!urlService.isValidURL(pro.getEnlace())){
