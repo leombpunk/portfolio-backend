@@ -231,7 +231,7 @@ public class EducacionController {
                 return new ResponseEntity(new Mensaje("El estudio/curso indicado no existe!"), HttpStatus.NOT_FOUND);
             }
             Map result = cloudinaryService.upload(img);
-            Imagen image = new Imagen("perfil_educacion_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
+            Imagen image = new Imagen("educacion_foto_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
             interEducacion.loadImage(image, id);
             return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
         } catch (IOException e){

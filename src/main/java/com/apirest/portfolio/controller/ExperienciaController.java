@@ -225,7 +225,7 @@ public class ExperienciaController {
                 return new ResponseEntity(new Mensaje("La experiencia laboral indicada no existe!"), HttpStatus.NOT_FOUND);
             }
             Map result = cloudinaryService.upload(img);
-            Imagen image = new Imagen("perfil_experiencia_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
+            Imagen image = new Imagen("experiencia_foto_"+id.hashCode(), (String) result.get("url"), (String) result.get("public_id"));
             interExperiencia.loadImage(image, id);
             return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
         } catch (IOException e){

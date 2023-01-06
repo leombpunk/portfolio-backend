@@ -206,6 +206,8 @@ public class ProyectoController {
                 if (!pro.getEnlace().isBlank()){
                     if (!urlService.isValidURL(pro.getEnlace())){
                         return new ResponseEntity(new Mensaje("El formato del campo Enlace no es correcto"), HttpStatus.BAD_REQUEST);
+                    } else {
+                        proyecto.setEnlace(pro.getEnlace());
                     }
                 } else {
                     pro.setEnlace(null);
@@ -214,6 +216,8 @@ public class ProyectoController {
                 if (!pro.getSitio().isBlank()){
                     if (!urlService.isValidURL(pro.getSitio())){
                         return new ResponseEntity(new Mensaje("El formato del campo Sitio no es correcto"), HttpStatus.BAD_REQUEST);
+                    } else {
+                        proyecto.setSitio(pro.getSitio());
                     }
                 } else {
                     pro.setSitio(null);
@@ -259,7 +263,7 @@ public class ProyectoController {
                 return new ResponseEntity(new Mensaje("El proyecto indicado no existe!"), HttpStatus.NOT_FOUND);
             }
             Map result = cloudinaryService.upload(img);
-            Imagen imagen = new Imagen("perfil_proyecto_"+id.hashCode()+".jpg", (String) result.get("url"), (String) result.get("public_id"));
+            Imagen imagen = new Imagen("proyecto_foto_"+id.hashCode()+".jpg", (String) result.get("url"), (String) result.get("public_id"));
             interProyecto.loadImage(imagen, id);
             return new ResponseEntity(new Mensaje("Imagen actualizada con exito!"), HttpStatus.OK);
         } catch (IOException e){
